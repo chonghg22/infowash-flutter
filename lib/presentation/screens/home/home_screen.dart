@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,14 +23,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   NaverMapController? _mapController;
   CarWash? _selectedCarWash;
   bool _cameraMoved = false;
+  Timer? _debounceTimer;
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _mapController?.dispose();
     super.dispose();
   }
 
-  // ── 마커 추가 ──────────────────────────────────────────────────────────────
+  // ── 줌 레벨 → 검색 반경(km) ────────────────────────────────────────────────
+  double _radiusFromZoom(double zoom) {
+    if (zoom >= 15) return 1.0;
+    if (zoom >= 13) return 3.0;
+    if (zoom >= 11) return 5.0;
+    return 10.0;
+  }
+
+  // ── 마커 갱신 ──────────────────────────────────────────────────────────────
   void _updateMarkers(List<CarWash> carWashes) {
     final controller = _mapController;
     if (controller == null) return;
@@ -66,6 +78,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
     _cameraMoved = true;
+  }
+
+  // ── 카메라 이동 완료 → debounce 후 재검색 ─────────────────────────────────
+  void _onCameraIdle() {
+    final controller = _mapController;
+    if (controller == null) return;
+
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () async {
+      if (!mounted) return;
+      final cameraPos = await controller.getCameraPosition();
+      final target = cameraPos.target;
+      final radius = _radiusFromZoom(cameraPos.zoom);
+
+      ref.read(mapSearchParamsProvider.notifier).state = (
+        lat: target.latitude,
+        lng: target.longitude,
+        radiusKm: radius,
+      );
+    });
+  }
+
+  // ── 검색 파라미터 초기화 (현재 위치 기준) ──────────────────────────────────
+  void _initSearchParams(Position position) {
+    if (ref.read(mapSearchParamsProvider) != null) return;
+    ref.read(mapSearchParamsProvider.notifier).state = (
+      lat: position.latitude,
+      lng: position.longitude,
+      radiusKm: AppConstants.searchRadiusKm,
+    );
   }
 
   // ── 위치 권한 거부 다이얼로그 ──────────────────────────────────────────────
@@ -109,17 +151,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (next.hasError) {
         final notifier = ref.read(locationNotifierProvider.notifier);
         _showPermissionDialog(isPermanent: notifier.isDeniedForever);
-      } else if (next.hasValue && !_cameraMoved) {
-        _moveToCurrentPosition();
+      } else if (next.hasValue && next.value != null) {
+        if (!_cameraMoved) _moveToCurrentPosition();
+        _initSearchParams(next.value!);
       }
     });
 
-    // 주변 세차장 로드되면 마커 갱신
-    ref.listen(nearbyCarWashesProvider, (prev, next) {
+    // 검색 결과로 마커 갱신
+    ref.listen(mapNearbyCarWashesProvider, (prev, next) {
       next.whenData(_updateMarkers);
     });
 
-    final nearbyAsync = ref.watch(nearbyCarWashesProvider);
+    final nearbyAsync = ref.watch(mapNearbyCarWashesProvider);
+    final isSearching = nearbyAsync.isLoading;
     final selectedCarWash = _selectedCarWash;
     final bottomOffset = selectedCarWash != null ? 250.0 : 100.0;
 
@@ -142,8 +186,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             onMapReady: (controller) {
               _mapController = controller;
               _moveToCurrentPosition();
+              // 이미 위치가 있으면 즉시 초기 검색 파라미터 설정
+              final pos = ref.read(locationNotifierProvider).valueOrNull;
+              if (pos != null) _initSearchParams(pos);
               nearbyAsync.whenData(_updateMarkers);
             },
+            onCameraIdle: _onCameraIdle,
             onMapTapped: (_, __) {
               if (_selectedCarWash != null) {
                 setState(() => _selectedCarWash = null);
@@ -188,6 +236,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ),
+
+          // ── 검색 중 인디케이터 ──────────────────────────────────────────────
+          if (isSearching)
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 70),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: Colors.black87,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 12,
+                          height: 12,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 1.5,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          '검색 중...',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
 
           // ── 주변 세차장 수 뱃지 ────────────────────────────────────────────
           nearbyAsync.when(
@@ -259,7 +348,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
 
-          // ── 선택된 세차장 미니 카드 (DraggableScrollableSheet) ─────────────
+          // ── 선택된 세차장 미니 카드 ────────────────────────────────────────
           if (selectedCarWash != null)
             DraggableScrollableSheet(
               initialChildSize: 0.22,

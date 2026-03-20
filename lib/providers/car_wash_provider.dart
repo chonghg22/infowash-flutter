@@ -57,6 +57,39 @@ final carWashDetailProvider =
   return repo.fetchById(id);
 });
 
+// ── 지도 검색 파라미터 (홈 화면 카메라 중심 기준) ─────────────────────────────
+typedef MapSearchParams = ({double lat, double lng, double radiusKm});
+
+final mapSearchParamsProvider = StateProvider<MapSearchParams?>(
+  (ref) => null,
+);
+
+// ── 지도 중심 기반 주변 세차장 검색 ───────────────────────────────────────────
+final mapNearbyCarWashesProvider =
+    FutureProvider.autoDispose<List<CarWash>>((ref) async {
+  final params = ref.watch(mapSearchParamsProvider);
+  if (params == null) return [];
+
+  try {
+    final response = await Supabase.instance.client.functions.invoke(
+      'nearby-carwash',
+      body: {
+        'lat': params.lat,
+        'lng': params.lng,
+        'radius_km': params.radiusKm,
+        'limit': 30,
+      },
+    );
+    final data = response.data as List<dynamic>;
+    return data
+        .map((e) => CarWash.fromJson(e as Map<String, dynamic>))
+        .toList();
+  } catch (e, st) {
+    debugPrint('[mapNearbyCarWashesProvider] error: $e\n$st');
+    return [];
+  }
+});
+
 // ── Search Query State ────────────────────────────────────────────────────────
 final searchQueryProvider = StateProvider<String>((ref) => '');
 

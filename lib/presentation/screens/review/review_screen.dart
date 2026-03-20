@@ -70,7 +70,7 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
       await client.storage
           .from('review-images')
           .uploadBinary(path, bytes,
-              fileOptions: const FileOptions(contentType: 'image/jpeg'));
+              fileOptions: FileOptions(contentType: 'image/jpeg'));
 
       final url =
           client.storage.from('review-images').getPublicUrl(path);

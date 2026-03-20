@@ -1,3 +1,4 @@
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -23,15 +24,25 @@ void main() async {
     ),
   );
 
+  // ── 딥링크 처리 (카카오 OAuth 콜백) ───────────────────────────
+  final appLinks = AppLinks();
+
+  // 앱이 종료된 상태에서 딥링크로 실행된 경우
+  final initialUri = await appLinks.getInitialLink();
+  if (initialUri != null) {
+    await Supabase.instance.client.auth.getSessionFromUrl(initialUri);
+  }
+
+  // 앱 실행 중 딥링크 수신 (백그라운드 → 포그라운드 복귀)
+  appLinks.uriLinkStream.listen((uri) {
+    Supabase.instance.client.auth.getSessionFromUrl(uri);
+  });
+
   // ── 네이버 지도 SDK 초기화 ─────────────────────────────────────
   await FlutterNaverMap().init(
     clientId: AppConstants.naverMapClientId,
     onAuthFailed: (e) => debugPrint('네이버맵 인증 실패: $e'),
   );
-
-  // ── AdMob 초기화 ───────────────────────────────────────────────
-  // TODO: google_mobile_ads 연동 시 아래 주석 해제
-  // await MobileAds.instance.initialize();
 
   runApp(
     const ProviderScope(

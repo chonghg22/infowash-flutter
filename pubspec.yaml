@@ -42,6 +42,9 @@ dependencies:
   # URL Launcher
   url_launcher: ^6.3.0
 
+  # Deep Link
+  app_links: ^6.4.1
+
   # Local Storage
   shared_preferences: ^2.3.0
 

@@ -12,9 +12,15 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // ── Supabase 초기화 ────────────────────────────────────────────
+  // Supabase 대시보드 → Authentication → URL Configuration
+  // Redirect URLs에 아래 추가 필요:
+  // io.supabase.infowash://login-callback
   await Supabase.initialize(
     url: AppConstants.supabaseUrl,
     anonKey: AppConstants.supabaseAnonKey,
+    authOptions: const FlutterAuthClientOptions(
+      authFlowType: AuthFlowType.pkce,
+    ),
   );
 
   // ── 네이버 지도 SDK 초기화 ─────────────────────────────────────

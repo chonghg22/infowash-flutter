@@ -23,17 +23,17 @@ class LoginScreen extends ConsumerWidget {
     final authState = ref.watch(authNotifierProvider);
     final isBottomSheet = Navigator.canPop(context);
 
-    ref.listen(authNotifierProvider, (prev, next) {
-      next.whenData((user) {
-        if (user != null) {
+    // authSessionProvider: 딥링크 콜백 후 signedIn 이벤트를 감지 (PKCE 플로우)
+    ref.listen<AsyncValue<AuthState>>(authSessionProvider, (_, next) {
+      next.whenData((authState) {
+        if (authState.event == AuthChangeEvent.signedIn) {
           if (onLoginSuccess != null) {
             onLoginSuccess!();
             _close(context);
           } else if (isBottomSheet) {
             _close(context);
-          } else {
-            context.go(AppRoutes.home);
           }
+          // 전체화면 로그인의 경우 app_router의 redirect가 /home으로 처리
         }
       });
     });

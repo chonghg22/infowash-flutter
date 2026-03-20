@@ -87,11 +87,12 @@ class AuthNotifier extends Notifier<AsyncValue<User?>> {
   Future<void> signInWithKakao() async {
     state = const AsyncValue.loading();
     try {
-      // authScreenLaunchMode 미지정 → 플랫폼 기본값(Android: Custom Tabs)
-      // Custom Tabs는 커스텀 스킴 딥링크 리다이렉트를 더 안정적으로 처리함
+      // redirectTo: Supabase가 카카오 인증 처리 완료 후 앱으로 돌아올 딥링크
+      // (카카오 → Supabase 콜백은 Supabase가 자동 처리, 별개의 URL)
       await Supabase.instance.client.auth.signInWithOAuth(
         OAuthProvider.kakao,
         redirectTo: 'io.supabase.infowash://login-callback',
+        authScreenLaunchMode: LaunchMode.externalApplication,
       );
       // 브라우저가 열리고 즉시 반환됨 — 실제 로그인 완료는 authSessionProvider가 감지
       // 상태를 즉시 리셋하지 않고 loading 유지 (LoginScreen이 resume 시 리셋)

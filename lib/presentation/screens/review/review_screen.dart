@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../data/repositories/review_repository.dart';
-import '../../../core/router/app_router.dart';
 import '../../widgets/rating_bar.dart';
 
 class ReviewScreen extends ConsumerStatefulWidget {
@@ -43,10 +42,7 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
     }
 
     final user = ref.read(currentUserProvider);
-    if (user == null) {
-      context.push(AppRoutes.login);
-      return;
-    }
+    if (user == null) return; // 라우터 가드가 처리
 
     setState(() => _isSubmitting = true);
     try {

@@ -9,8 +9,10 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/car_wash.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../providers/car_wash_provider.dart';
 import '../../../providers/location_provider.dart';
+import '../auth/login_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -146,6 +148,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 로그인 시 프로필 자동 생성 감지
+    ref.watch(profileInitProvider);
+
     // 위치 상태 감지
     ref.listen(locationNotifierProvider, (prev, next) {
       if (next.hasError) {
@@ -199,40 +204,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             },
           ),
 
-          // ── 상단 검색바 ────────────────────────────────────────────────────
+          // ── 상단 검색바 + 로그인 아이콘 ───────────────────────────────────
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: GestureDetector(
-                onTap: () => context.push('/list'),
-                child: Container(
-                  height: 48,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(25),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.search, color: AppTheme.primary, size: 20),
-                      SizedBox(width: 8),
-                      Text(
-                        '세차장 검색',
-                        style: TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: 15,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => context.push('/list'),
+                      child: Container(
+                        height: 48,
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(25),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.search,
+                                color: AppTheme.primary, size: 20),
+                            SizedBox(width: 8),
+                            Text(
+                              '세차장 검색',
+                              style: TextStyle(
+                                color: AppTheme.textSecondary,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  _AuthButton(),
+                ],
               ),
             ),
           ),
@@ -522,6 +537,70 @@ class _MiniCarWashCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ── 로그인/프로필 버튼 ─────────────────────────────────────────────────────────
+class _AuthButton extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isSignedIn = ref.watch(isSignedInProvider);
+
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(25),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        icon: Icon(
+          isSignedIn ? Icons.person : Icons.login,
+          color: AppTheme.primary,
+          size: 22,
+        ),
+        onPressed: () {
+          if (isSignedIn) {
+            final nickname =
+                ref.read(userNicknameProvider).valueOrNull ?? '사용자';
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                title: Text('$nickname님 안녕하세요!'),
+                content: const Text('로그아웃 하시겠습니까?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('닫기'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      ref
+                          .read(authNotifierProvider.notifier)
+                          .signOut();
+                    },
+                    child: const Text('로그아웃'),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            showLoginBottomSheet(context);
+          }
+        },
       ),
     );
   }

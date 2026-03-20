@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../presentation/screens/auth/login_screen.dart';
+import '../../providers/auth_provider.dart';
 import '../../presentation/screens/detail/detail_screen.dart';
 import '../../presentation/screens/favorite/favorite_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
@@ -64,19 +65,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // Review (full-screen, no bottom nav)
+      // Review (full-screen, no bottom nav) — 로그인 필요
       GoRoute(
         path: AppRoutes.review,
+        redirect: (context, state) {
+          final container =
+              ProviderScope.containerOf(context, listen: false);
+          if (!container.read(isSignedInProvider)) {
+            // 비로그인 직접 접근 시 로그인 화면으로
+            return AppRoutes.login;
+          }
+          return null;
+        },
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return ReviewScreen(carWashId: id);
         },
       ),
 
-      // Report (full-screen, no bottom nav)
+      // Report (full-screen, no bottom nav) — 비로그인 허용
       GoRoute(
         path: AppRoutes.report,
-        builder: (context, state) => const ReportScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final carWashId = extra?['carWashId'] as String?;
+          return ReportScreen(carWashId: carWashId);
+        },
       ),
 
       // Shell: screens with bottom navigation

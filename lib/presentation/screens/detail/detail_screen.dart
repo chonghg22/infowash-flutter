@@ -10,6 +10,8 @@ import '../../../data/models/review.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/car_wash_provider.dart';
 import '../../../providers/detail_provider.dart';
+import '../../../providers/favorite_provider.dart';
+import '../auth/login_screen.dart';
 
 class DetailScreen extends ConsumerStatefulWidget {
   const DetailScreen({super.key, required this.id});
@@ -22,19 +24,6 @@ class DetailScreen extends ConsumerStatefulWidget {
 
 class _DetailScreenState extends ConsumerState<DetailScreen> {
   int _imageIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    // 즐겨찾기 초기 상태 로드
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final repo = ref.read(carWashRepositoryProvider);
-      final fav = await repo.isFavorite(widget.id);
-      if (mounted) {
-        ref.read(isFavoriteProvider(widget.id).notifier).state = fav;
-      }
-    });
-  }
 
   Future<void> _launchPhone(String phone) async {
     final uri = Uri(scheme: 'tel', path: phone);
@@ -57,24 +46,24 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
     }
   }
 
-  Future<void> _toggleFavorite() async {
+  Future<void> _toggleFavorite(CarWash carWash) async {
+    final notifier = ref.read(favoriteProvider.notifier);
+    if (notifier.isFavorite(widget.id)) {
+      await notifier.removeFavorite(widget.id);
+    } else {
+      await notifier.addFavorite(carWash);
+    }
+  }
+
+  Future<void> _openReview() async {
     if (!ref.read(isSignedInProvider)) {
-      context.push(AppRoutes.login);
+      await showLoginBottomSheet(
+        context,
+        onLoginSuccess: () => context.push(AppRoutes.reviewPath(widget.id)),
+      );
       return;
     }
-    try {
-      final repo = ref.read(carWashRepositoryProvider);
-      final result = await repo.toggleFavorite(widget.id);
-      if (mounted) {
-        ref.read(isFavoriteProvider(widget.id).notifier).state = result;
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('오류: $e')),
-        );
-      }
-    }
+    context.push(AppRoutes.reviewPath(widget.id));
   }
 
   @override
@@ -107,7 +96,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
                           isFav ? Icons.favorite : Icons.favorite_border,
                           color: isFav ? Colors.red : Colors.white,
                         ),
-                        onPressed: _toggleFavorite,
+                        onPressed: () => _toggleFavorite(carWash),
                       ),
                     ],
                     flexibleSpace: FlexibleSpaceBar(
@@ -284,8 +273,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
                                     Theme.of(context).textTheme.titleMedium,
                               ),
                               TextButton(
-                                onPressed: () => context
-                                    .push(AppRoutes.reviewPath(widget.id)),
+                                onPressed: _openReview,
                                 child: const Text('리뷰 작성'),
                               ),
                             ],
@@ -376,10 +364,8 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () => context
-                              .push(AppRoutes.reviewPath(widget.id)),
-                          icon:
-                              const Icon(Icons.rate_review, size: 18),
+                          onPressed: _openReview,
+                          icon: const Icon(Icons.rate_review, size: 18),
                           label: const Text('리뷰 작성'),
                         ),
                       ),

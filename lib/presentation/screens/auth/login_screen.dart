@@ -8,20 +8,39 @@ import '../../../core/theme/app_theme.dart';
 import '../../../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, this.onLoginSuccess});
+
+  final VoidCallback? onLoginSuccess;
+
+  void _close(BuildContext context) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authNotifierProvider);
+    final isBottomSheet = Navigator.canPop(context);
 
-    // 로그인 성공 시 홈으로
     ref.listen(authNotifierProvider, (prev, next) {
       next.whenData((user) {
-        if (user != null) context.go(AppRoutes.home);
+        if (user != null) {
+          if (onLoginSuccess != null) {
+            onLoginSuccess!();
+            _close(context);
+          } else if (isBottomSheet) {
+            _close(context);
+          } else {
+            context.go(AppRoutes.home);
+          }
+        }
       });
     });
 
     return Scaffold(
+      // 바텀시트로 열릴 때는 Scaffold 배경 투명 처리
+      backgroundColor: isBottomSheet ? Colors.transparent : null,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -46,9 +65,9 @@ class LoginScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                '내 주변 셀프세차장을 한눈에',
-                style: TextStyle(color: AppTheme.textSecondary),
+              Text(
+                isBottomSheet ? '리뷰 작성은 로그인이 필요해요' : '내 주변 셀프세차장을 한눈에',
+                style: const TextStyle(color: AppTheme.textSecondary),
               ),
 
               const Spacer(flex: 2),
@@ -92,12 +111,18 @@ class LoginScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
 
-              // ── 비로그인 계속하기 ─────────────────────────
+              // ── 취소 / 비로그인 계속하기 ──────────────────
               TextButton(
-                onPressed: () => context.go(AppRoutes.home),
-                child: const Text(
-                  '로그인 없이 둘러보기',
-                  style: TextStyle(color: AppTheme.textSecondary),
+                onPressed: () {
+                  if (isBottomSheet) {
+                    _close(context);
+                  } else {
+                    context.go(AppRoutes.home);
+                  }
+                },
+                child: Text(
+                  isBottomSheet ? '취소' : '로그인 없이 둘러보기',
+                  style: const TextStyle(color: AppTheme.textSecondary),
                 ),
               ),
 
@@ -116,6 +141,22 @@ class LoginScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// 바텀시트로 로그인 화면 표시
+Future<void> showLoginBottomSheet(
+  BuildContext context, {
+  VoidCallback? onLoginSuccess,
+}) {
+  return showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (_) => LoginScreen(onLoginSuccess: onLoginSuccess),
+  );
 }
 
 class _SocialLoginButton extends StatelessWidget {

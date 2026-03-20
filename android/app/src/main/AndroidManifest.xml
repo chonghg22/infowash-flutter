@@ -31,12 +31,21 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- Supabase OAuth 딥링크 콜백 -->
+            <!-- Supabase OAuth 딥링크 콜백 (기존) -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="com.infowash.app" android:host="login-callback" />
+            </intent-filter>
+            <!-- Supabase OAuth 딥링크 콜백 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:scheme="io.supabase.infowash"
+                    android:host="login-callback"/>
             </intent-filter>
         </activity>
 
@@ -69,6 +78,8 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="kakaocominfowashapp" />
         </intent>
+        <!-- 카카오톡 앱 연동 -->
+        <package android:name="com.kakao.talk"/>
         <!-- 네이버지도 앱 (길찾기) -->
         <package android:name="com.nhn.android.nmap"/>
     </queries>

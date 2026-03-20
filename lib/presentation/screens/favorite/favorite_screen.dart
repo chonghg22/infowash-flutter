@@ -1,72 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../providers/auth_provider.dart';
-import '../../../data/models/favorite.dart';
-
-// 즐겨찾기 목록 Provider
-final favoriteListProvider = FutureProvider.autoDispose<List<Favorite>>((ref) async {
-  final user = ref.watch(currentUserProvider);
-  if (user == null) return [];
-
-  final data = await Supabase.instance.client
-      .schema('infowash')
-      .from('favorite')
-      .select('*, car_wash(id, name, address, images)')
-      .eq('user_id', user.id)
-      .order('created_at', ascending: false);
-
-  return (data as List<dynamic>)
-      .map((e) => Favorite.fromJson(e as Map<String, dynamic>))
-      .toList();
-});
+import '../../../providers/favorite_provider.dart';
 
 class FavoriteScreen extends ConsumerWidget {
   const FavoriteScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isSignedIn = ref.watch(isSignedInProvider);
-    final favoritesAsync = ref.watch(favoriteListProvider);
-
-    if (!isSignedIn) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('즐겨찾기')),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.favorite_border, size: 64, color: AppTheme.textSecondary),
-              const SizedBox(height: 16),
-              const Text(
-                '로그인 후 즐겨찾기를 이용할 수 있습니다.',
-                style: TextStyle(color: AppTheme.textSecondary),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => context.push(AppRoutes.login),
-                child: const Text('로그인'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+    final favoritesAsync = ref.watch(favoriteProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('즐겨찾기')),
       body: favoritesAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('오류: $e')),
         data: (favorites) {
           if (favorites.isEmpty) {
             return const Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.favorite_border, size: 64, color: AppTheme.textSecondary),
+                  Icon(Icons.favorite_border,
+                      size: 64, color: AppTheme.textSecondary),
                   SizedBox(height: 16),
                   Text(
                     '즐겨찾기한 세차장이 없습니다.',
@@ -75,22 +34,39 @@ class FavoriteScreen extends ConsumerWidget {
                   SizedBox(height: 8),
                   Text(
                     '세차장 상세 화면에서 ♥를 눌러 추가해보세요.',
-                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                    style: TextStyle(
+                        color: AppTheme.textSecondary, fontSize: 12),
                   ),
                 ],
               ),
             );
           }
-          return RefreshIndicator(
-            onRefresh: () async => ref.invalidate(favoriteListProvider),
-            child: ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: favorites.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final fav = favorites[index];
-                final carWash = fav.carWash;
-                return Card(
+
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: favorites.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final cw = favorites[index];
+              return Dismissible(
+                key: ValueKey(cw.id),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade400,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.delete_outline,
+                      color: Colors.white, size: 28),
+                ),
+                onDismissed: (_) {
+                  ref
+                      .read(favoriteProvider.notifier)
+                      .removeFavorite(cw.id);
+                },
+                child: Card(
                   child: ListTile(
                     contentPadding: const EdgeInsets.all(12),
                     leading: Container(
@@ -100,12 +76,16 @@ class FavoriteScreen extends ConsumerWidget {
                         color: const Color(0xFFE3F2FD),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: (carWash?.images.isNotEmpty ?? false)
+                      child: cw.images.isNotEmpty
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: Image.network(
-                                carWash!.images.first,
+                                cw.images.first,
                                 fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const Icon(
+                                  Icons.local_car_wash,
+                                  color: AppTheme.primary,
+                                ),
                               ),
                             )
                           : const Icon(
@@ -114,11 +94,11 @@ class FavoriteScreen extends ConsumerWidget {
                             ),
                     ),
                     title: Text(
-                      carWash?.name ?? '세차장',
+                      cw.name,
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     subtitle: Text(
-                      carWash?.address ?? '',
+                      cw.roadAddress ?? cw.address,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -130,17 +110,13 @@ class FavoriteScreen extends ConsumerWidget {
                       Icons.chevron_right,
                       color: AppTheme.textSecondary,
                     ),
-                    onTap: () => context.push(
-                      AppRoutes.detailPath(fav.carWashId),
-                    ),
+                    onTap: () => context.push(AppRoutes.detailPath(cw.id)),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('오류: $e')),
       ),
     );
   }

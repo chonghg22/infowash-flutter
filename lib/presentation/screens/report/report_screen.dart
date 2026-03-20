@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/repositories/car_wash_repository.dart';
 import '../../../providers/auth_provider.dart';
-import '../../../core/router/app_router.dart';
 
 enum ReportType {
   wrongAddress('주소 오류'),
@@ -52,20 +51,16 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
       return;
     }
 
-    final user = ref.read(currentUserProvider);
-    if (user == null) {
-      context.push(AppRoutes.login);
-      return;
-    }
-
     if (widget.carWashId == null) return;
+
+    final user = ref.read(currentUserProvider);
 
     setState(() => _isSubmitting = true);
     try {
       final repo = CarWashRepository(ref.read(supabaseClientProvider));
       await repo.reportCorrection(
         carWashId: widget.carWashId!,
-        userId: user.id,
+        userId: user?.id,
         content: '[${_selectedType!.label}] ${_contentController.text.trim()}',
       );
       if (mounted) {

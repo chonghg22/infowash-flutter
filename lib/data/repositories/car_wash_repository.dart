@@ -159,7 +159,7 @@ class CarWashRepository {
   /// 정보 수정 제안 (신고/제보)
   Future<void> reportCorrection({
     required String carWashId,
-    required String userId,
+    String? userId, // 비로그인 시 null
     required String content,
   }) async {
     await _client.schema(_schema).from('correction_report').insert({

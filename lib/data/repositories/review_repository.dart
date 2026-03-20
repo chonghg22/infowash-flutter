@@ -7,7 +7,9 @@ class ReviewRepository {
 
   final SupabaseClient _client;
 
-  static const _table = 'reviews';
+  // infowash 스키마 기준
+  static const _schema = 'infowash';
+  static const _table = 'review';
 
   /// 세차장 리뷰 목록
   Future<List<Review>> fetchByCarWash(
@@ -16,6 +18,7 @@ class ReviewRepository {
     int pageSize = 20,
   }) async {
     final data = await _client
+        .schema(_schema)
         .from(_table)
         .select('*, profiles(nickname, avatar_url)')
         .eq('car_wash_id', carWashId)
@@ -36,6 +39,7 @@ class ReviewRepository {
     List<String> imageUrls = const [],
   }) async {
     final data = await _client
+        .schema(_schema)
         .from(_table)
         .insert({
           'car_wash_id': carWashId,
@@ -52,14 +56,15 @@ class ReviewRepository {
 
   /// 리뷰 삭제
   Future<void> delete(String reviewId) async {
-    await _client.from(_table).delete().eq('id', reviewId);
+    await _client.schema(_schema).from(_table).delete().eq('id', reviewId);
   }
 
   /// 내 리뷰 목록
   Future<List<Review>> fetchByUser(String userId) async {
     final data = await _client
+        .schema(_schema)
         .from(_table)
-        .select('*, car_washes(name)')
+        .select('*, car_wash(name)')
         .eq('user_id', userId)
         .order('created_at', ascending: false);
 

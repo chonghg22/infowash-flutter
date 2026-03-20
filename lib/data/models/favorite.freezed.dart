@@ -289,8 +289,7 @@ mixin _$CarWashSummary {
   String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get address => throw _privateConstructorUsedError;
-  double get rating => throw _privateConstructorUsedError;
-  String? get thumbnailUrl => throw _privateConstructorUsedError;
+  List<String> get images => throw _privateConstructorUsedError;
 
   /// Serializes this CarWashSummary to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -309,13 +308,7 @@ abstract class $CarWashSummaryCopyWith<$Res> {
     $Res Function(CarWashSummary) then,
   ) = _$CarWashSummaryCopyWithImpl<$Res, CarWashSummary>;
   @useResult
-  $Res call({
-    String id,
-    String name,
-    String address,
-    double rating,
-    String? thumbnailUrl,
-  });
+  $Res call({String id, String name, String address, List<String> images});
 }
 
 /// @nodoc
@@ -336,8 +329,7 @@ class _$CarWashSummaryCopyWithImpl<$Res, $Val extends CarWashSummary>
     Object? id = null,
     Object? name = null,
     Object? address = null,
-    Object? rating = null,
-    Object? thumbnailUrl = freezed,
+    Object? images = null,
   }) {
     return _then(
       _value.copyWith(
@@ -353,14 +345,10 @@ class _$CarWashSummaryCopyWithImpl<$Res, $Val extends CarWashSummary>
                 ? _value.address
                 : address // ignore: cast_nullable_to_non_nullable
                       as String,
-            rating: null == rating
-                ? _value.rating
-                : rating // ignore: cast_nullable_to_non_nullable
-                      as double,
-            thumbnailUrl: freezed == thumbnailUrl
-                ? _value.thumbnailUrl
-                : thumbnailUrl // ignore: cast_nullable_to_non_nullable
-                      as String?,
+            images: null == images
+                ? _value.images
+                : images // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
           )
           as $Val,
     );
@@ -376,13 +364,7 @@ abstract class _$$CarWashSummaryImplCopyWith<$Res>
   ) = __$$CarWashSummaryImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String id,
-    String name,
-    String address,
-    double rating,
-    String? thumbnailUrl,
-  });
+  $Res call({String id, String name, String address, List<String> images});
 }
 
 /// @nodoc
@@ -402,8 +384,7 @@ class __$$CarWashSummaryImplCopyWithImpl<$Res>
     Object? id = null,
     Object? name = null,
     Object? address = null,
-    Object? rating = null,
-    Object? thumbnailUrl = freezed,
+    Object? images = null,
   }) {
     return _then(
       _$CarWashSummaryImpl(
@@ -419,14 +400,10 @@ class __$$CarWashSummaryImplCopyWithImpl<$Res>
             ? _value.address
             : address // ignore: cast_nullable_to_non_nullable
                   as String,
-        rating: null == rating
-            ? _value.rating
-            : rating // ignore: cast_nullable_to_non_nullable
-                  as double,
-        thumbnailUrl: freezed == thumbnailUrl
-            ? _value.thumbnailUrl
-            : thumbnailUrl // ignore: cast_nullable_to_non_nullable
-                  as String?,
+        images: null == images
+            ? _value._images
+            : images // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
       ),
     );
   }
@@ -439,9 +416,8 @@ class _$CarWashSummaryImpl implements _CarWashSummary {
     required this.id,
     required this.name,
     required this.address,
-    this.rating = 0.0,
-    this.thumbnailUrl,
-  });
+    final List<String> images = const [],
+  }) : _images = images;
 
   factory _$CarWashSummaryImpl.fromJson(Map<String, dynamic> json) =>
       _$$CarWashSummaryImplFromJson(json);
@@ -452,15 +428,18 @@ class _$CarWashSummaryImpl implements _CarWashSummary {
   final String name;
   @override
   final String address;
+  final List<String> _images;
   @override
   @JsonKey()
-  final double rating;
-  @override
-  final String? thumbnailUrl;
+  List<String> get images {
+    if (_images is EqualUnmodifiableListView) return _images;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_images);
+  }
 
   @override
   String toString() {
-    return 'CarWashSummary(id: $id, name: $name, address: $address, rating: $rating, thumbnailUrl: $thumbnailUrl)';
+    return 'CarWashSummary(id: $id, name: $name, address: $address, images: $images)';
   }
 
   @override
@@ -471,15 +450,18 @@ class _$CarWashSummaryImpl implements _CarWashSummary {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.address, address) || other.address == address) &&
-            (identical(other.rating, rating) || other.rating == rating) &&
-            (identical(other.thumbnailUrl, thumbnailUrl) ||
-                other.thumbnailUrl == thumbnailUrl));
+            const DeepCollectionEquality().equals(other._images, _images));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, name, address, rating, thumbnailUrl);
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    name,
+    address,
+    const DeepCollectionEquality().hash(_images),
+  );
 
   /// Create a copy of CarWashSummary
   /// with the given fields replaced by the non-null parameter values.
@@ -503,8 +485,7 @@ abstract class _CarWashSummary implements CarWashSummary {
     required final String id,
     required final String name,
     required final String address,
-    final double rating,
-    final String? thumbnailUrl,
+    final List<String> images,
   }) = _$CarWashSummaryImpl;
 
   factory _CarWashSummary.fromJson(Map<String, dynamic> json) =
@@ -517,9 +498,7 @@ abstract class _CarWashSummary implements CarWashSummary {
   @override
   String get address;
   @override
-  double get rating;
-  @override
-  String? get thumbnailUrl;
+  List<String> get images;
 
   /// Create a copy of CarWashSummary
   /// with the given fields replaced by the non-null parameter values.

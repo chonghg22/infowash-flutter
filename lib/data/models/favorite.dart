@@ -18,14 +18,14 @@ class Favorite with _$Favorite {
       _$FavoriteFromJson(json);
 }
 
+/// infowash.car_wash join 요약 (즐겨찾기 목록용)
 @freezed
 class CarWashSummary with _$CarWashSummary {
   const factory CarWashSummary({
     required String id,
     required String name,
     required String address,
-    @Default(0.0) double rating,
-    String? thumbnailUrl,
+    @Default([]) List<String> images,
   }) = _CarWashSummary;
 
   factory CarWashSummary.fromJson(Map<String, dynamic> json) =>

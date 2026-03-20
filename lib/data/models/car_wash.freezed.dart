@@ -21,23 +21,35 @@ CarWash _$CarWashFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$CarWash {
+  // ── 기본 정보 ──────────────────────────────────────────────
   String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get address => throw _privateConstructorUsedError;
-  double get latitude => throw _privateConstructorUsedError;
-  double get longitude => throw _privateConstructorUsedError;
-  double get rating => throw _privateConstructorUsedError;
-  int get reviewCount => throw _privateConstructorUsedError;
+  String? get roadAddress =>
+      throw _privateConstructorUsedError; // ── 위치 ───────────────────────────────────────────────────
+  double get lat => throw _privateConstructorUsedError;
+  double get lng =>
+      throw _privateConstructorUsedError; // ── 연락처 / 운영 정보 ─────────────────────────────────────
   String? get phone => throw _privateConstructorUsedError;
-  String? get description => throw _privateConstructorUsedError;
-  List<String> get facilities => throw _privateConstructorUsedError;
-  String? get thumbnailUrl => throw _privateConstructorUsedError;
-  bool get isOpen => throw _privateConstructorUsedError;
-  String? get operatingHours => throw _privateConstructorUsedError;
-  int get bayCount => throw _privateConstructorUsedError; // 세차 베이 수
-  bool get hasDryer => throw _privateConstructorUsedError; // 건조기 보유 여부
-  bool get hasVacuum => throw _privateConstructorUsedError; // 청소기 보유 여부
+  String? get openHours => throw _privateConstructorUsedError;
+  int get bayCount => throw _privateConstructorUsedError;
+  String? get priceInfo =>
+      throw _privateConstructorUsedError; // ── 편의시설 ───────────────────────────────────────────────
+  bool get hasVacuum => throw _privateConstructorUsedError; // 청소기
+  bool get hasAirGun => throw _privateConstructorUsedError; // 에어건
+  bool get hasMatWash => throw _privateConstructorUsedError; // 매트세척기
+  bool get hasToilet => throw _privateConstructorUsedError; // 화장실
+  bool get hasWaiting => throw _privateConstructorUsedError; // 대기 공간
+  // ── 이미지 ─────────────────────────────────────────────────
+  List<String> get images =>
+      throw _privateConstructorUsedError; // ── 메타 ───────────────────────────────────────────────────
+  String get source => throw _privateConstructorUsedError;
+  String get status => throw _privateConstructorUsedError;
+  int get reportedCount => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt =>
+      throw _privateConstructorUsedError; // ── nearby-carwash Edge Function 응답 추가 필드 ────────────
+  double? get distanceM => throw _privateConstructorUsedError;
 
   /// Serializes this CarWash to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -57,20 +69,25 @@ abstract class $CarWashCopyWith<$Res> {
     String id,
     String name,
     String address,
-    double latitude,
-    double longitude,
-    double rating,
-    int reviewCount,
+    String? roadAddress,
+    double lat,
+    double lng,
     String? phone,
-    String? description,
-    List<String> facilities,
-    String? thumbnailUrl,
-    bool isOpen,
-    String? operatingHours,
+    String? openHours,
     int bayCount,
-    bool hasDryer,
+    String? priceInfo,
     bool hasVacuum,
+    bool hasAirGun,
+    bool hasMatWash,
+    bool hasToilet,
+    bool hasWaiting,
+    List<String> images,
+    String source,
+    String status,
+    int reportedCount,
     DateTime? createdAt,
+    DateTime? updatedAt,
+    double? distanceM,
   });
 }
 
@@ -92,20 +109,25 @@ class _$CarWashCopyWithImpl<$Res, $Val extends CarWash>
     Object? id = null,
     Object? name = null,
     Object? address = null,
-    Object? latitude = null,
-    Object? longitude = null,
-    Object? rating = null,
-    Object? reviewCount = null,
+    Object? roadAddress = freezed,
+    Object? lat = null,
+    Object? lng = null,
     Object? phone = freezed,
-    Object? description = freezed,
-    Object? facilities = null,
-    Object? thumbnailUrl = freezed,
-    Object? isOpen = null,
-    Object? operatingHours = freezed,
+    Object? openHours = freezed,
     Object? bayCount = null,
-    Object? hasDryer = null,
+    Object? priceInfo = freezed,
     Object? hasVacuum = null,
+    Object? hasAirGun = null,
+    Object? hasMatWash = null,
+    Object? hasToilet = null,
+    Object? hasWaiting = null,
+    Object? images = null,
+    Object? source = null,
+    Object? status = null,
+    Object? reportedCount = null,
     Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+    Object? distanceM = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -121,62 +143,82 @@ class _$CarWashCopyWithImpl<$Res, $Val extends CarWash>
                 ? _value.address
                 : address // ignore: cast_nullable_to_non_nullable
                       as String,
-            latitude: null == latitude
-                ? _value.latitude
-                : latitude // ignore: cast_nullable_to_non_nullable
+            roadAddress: freezed == roadAddress
+                ? _value.roadAddress
+                : roadAddress // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            lat: null == lat
+                ? _value.lat
+                : lat // ignore: cast_nullable_to_non_nullable
                       as double,
-            longitude: null == longitude
-                ? _value.longitude
-                : longitude // ignore: cast_nullable_to_non_nullable
+            lng: null == lng
+                ? _value.lng
+                : lng // ignore: cast_nullable_to_non_nullable
                       as double,
-            rating: null == rating
-                ? _value.rating
-                : rating // ignore: cast_nullable_to_non_nullable
-                      as double,
-            reviewCount: null == reviewCount
-                ? _value.reviewCount
-                : reviewCount // ignore: cast_nullable_to_non_nullable
-                      as int,
             phone: freezed == phone
                 ? _value.phone
                 : phone // ignore: cast_nullable_to_non_nullable
                       as String?,
-            description: freezed == description
-                ? _value.description
-                : description // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            facilities: null == facilities
-                ? _value.facilities
-                : facilities // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
-            thumbnailUrl: freezed == thumbnailUrl
-                ? _value.thumbnailUrl
-                : thumbnailUrl // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            isOpen: null == isOpen
-                ? _value.isOpen
-                : isOpen // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            operatingHours: freezed == operatingHours
-                ? _value.operatingHours
-                : operatingHours // ignore: cast_nullable_to_non_nullable
+            openHours: freezed == openHours
+                ? _value.openHours
+                : openHours // ignore: cast_nullable_to_non_nullable
                       as String?,
             bayCount: null == bayCount
                 ? _value.bayCount
                 : bayCount // ignore: cast_nullable_to_non_nullable
                       as int,
-            hasDryer: null == hasDryer
-                ? _value.hasDryer
-                : hasDryer // ignore: cast_nullable_to_non_nullable
-                      as bool,
+            priceInfo: freezed == priceInfo
+                ? _value.priceInfo
+                : priceInfo // ignore: cast_nullable_to_non_nullable
+                      as String?,
             hasVacuum: null == hasVacuum
                 ? _value.hasVacuum
                 : hasVacuum // ignore: cast_nullable_to_non_nullable
                       as bool,
+            hasAirGun: null == hasAirGun
+                ? _value.hasAirGun
+                : hasAirGun // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            hasMatWash: null == hasMatWash
+                ? _value.hasMatWash
+                : hasMatWash // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            hasToilet: null == hasToilet
+                ? _value.hasToilet
+                : hasToilet // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            hasWaiting: null == hasWaiting
+                ? _value.hasWaiting
+                : hasWaiting // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            images: null == images
+                ? _value.images
+                : images // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            source: null == source
+                ? _value.source
+                : source // ignore: cast_nullable_to_non_nullable
+                      as String,
+            status: null == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                      as String,
+            reportedCount: null == reportedCount
+                ? _value.reportedCount
+                : reportedCount // ignore: cast_nullable_to_non_nullable
+                      as int,
             createdAt: freezed == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            updatedAt: freezed == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            distanceM: freezed == distanceM
+                ? _value.distanceM
+                : distanceM // ignore: cast_nullable_to_non_nullable
+                      as double?,
           )
           as $Val,
     );
@@ -195,20 +237,25 @@ abstract class _$$CarWashImplCopyWith<$Res> implements $CarWashCopyWith<$Res> {
     String id,
     String name,
     String address,
-    double latitude,
-    double longitude,
-    double rating,
-    int reviewCount,
+    String? roadAddress,
+    double lat,
+    double lng,
     String? phone,
-    String? description,
-    List<String> facilities,
-    String? thumbnailUrl,
-    bool isOpen,
-    String? operatingHours,
+    String? openHours,
     int bayCount,
-    bool hasDryer,
+    String? priceInfo,
     bool hasVacuum,
+    bool hasAirGun,
+    bool hasMatWash,
+    bool hasToilet,
+    bool hasWaiting,
+    List<String> images,
+    String source,
+    String status,
+    int reportedCount,
     DateTime? createdAt,
+    DateTime? updatedAt,
+    double? distanceM,
   });
 }
 
@@ -229,20 +276,25 @@ class __$$CarWashImplCopyWithImpl<$Res>
     Object? id = null,
     Object? name = null,
     Object? address = null,
-    Object? latitude = null,
-    Object? longitude = null,
-    Object? rating = null,
-    Object? reviewCount = null,
+    Object? roadAddress = freezed,
+    Object? lat = null,
+    Object? lng = null,
     Object? phone = freezed,
-    Object? description = freezed,
-    Object? facilities = null,
-    Object? thumbnailUrl = freezed,
-    Object? isOpen = null,
-    Object? operatingHours = freezed,
+    Object? openHours = freezed,
     Object? bayCount = null,
-    Object? hasDryer = null,
+    Object? priceInfo = freezed,
     Object? hasVacuum = null,
+    Object? hasAirGun = null,
+    Object? hasMatWash = null,
+    Object? hasToilet = null,
+    Object? hasWaiting = null,
+    Object? images = null,
+    Object? source = null,
+    Object? status = null,
+    Object? reportedCount = null,
     Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+    Object? distanceM = freezed,
   }) {
     return _then(
       _$CarWashImpl(
@@ -258,62 +310,82 @@ class __$$CarWashImplCopyWithImpl<$Res>
             ? _value.address
             : address // ignore: cast_nullable_to_non_nullable
                   as String,
-        latitude: null == latitude
-            ? _value.latitude
-            : latitude // ignore: cast_nullable_to_non_nullable
+        roadAddress: freezed == roadAddress
+            ? _value.roadAddress
+            : roadAddress // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        lat: null == lat
+            ? _value.lat
+            : lat // ignore: cast_nullable_to_non_nullable
                   as double,
-        longitude: null == longitude
-            ? _value.longitude
-            : longitude // ignore: cast_nullable_to_non_nullable
+        lng: null == lng
+            ? _value.lng
+            : lng // ignore: cast_nullable_to_non_nullable
                   as double,
-        rating: null == rating
-            ? _value.rating
-            : rating // ignore: cast_nullable_to_non_nullable
-                  as double,
-        reviewCount: null == reviewCount
-            ? _value.reviewCount
-            : reviewCount // ignore: cast_nullable_to_non_nullable
-                  as int,
         phone: freezed == phone
             ? _value.phone
             : phone // ignore: cast_nullable_to_non_nullable
                   as String?,
-        description: freezed == description
-            ? _value.description
-            : description // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        facilities: null == facilities
-            ? _value._facilities
-            : facilities // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
-        thumbnailUrl: freezed == thumbnailUrl
-            ? _value.thumbnailUrl
-            : thumbnailUrl // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        isOpen: null == isOpen
-            ? _value.isOpen
-            : isOpen // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        operatingHours: freezed == operatingHours
-            ? _value.operatingHours
-            : operatingHours // ignore: cast_nullable_to_non_nullable
+        openHours: freezed == openHours
+            ? _value.openHours
+            : openHours // ignore: cast_nullable_to_non_nullable
                   as String?,
         bayCount: null == bayCount
             ? _value.bayCount
             : bayCount // ignore: cast_nullable_to_non_nullable
                   as int,
-        hasDryer: null == hasDryer
-            ? _value.hasDryer
-            : hasDryer // ignore: cast_nullable_to_non_nullable
-                  as bool,
+        priceInfo: freezed == priceInfo
+            ? _value.priceInfo
+            : priceInfo // ignore: cast_nullable_to_non_nullable
+                  as String?,
         hasVacuum: null == hasVacuum
             ? _value.hasVacuum
             : hasVacuum // ignore: cast_nullable_to_non_nullable
                   as bool,
+        hasAirGun: null == hasAirGun
+            ? _value.hasAirGun
+            : hasAirGun // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        hasMatWash: null == hasMatWash
+            ? _value.hasMatWash
+            : hasMatWash // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        hasToilet: null == hasToilet
+            ? _value.hasToilet
+            : hasToilet // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        hasWaiting: null == hasWaiting
+            ? _value.hasWaiting
+            : hasWaiting // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        images: null == images
+            ? _value._images
+            : images // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        source: null == source
+            ? _value.source
+            : source // ignore: cast_nullable_to_non_nullable
+                  as String,
+        status: null == status
+            ? _value.status
+            : status // ignore: cast_nullable_to_non_nullable
+                  as String,
+        reportedCount: null == reportedCount
+            ? _value.reportedCount
+            : reportedCount // ignore: cast_nullable_to_non_nullable
+                  as int,
         createdAt: freezed == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        updatedAt: freezed == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        distanceM: freezed == distanceM
+            ? _value.distanceM
+            : distanceM // ignore: cast_nullable_to_non_nullable
+                  as double?,
       ),
     );
   }
@@ -326,25 +398,31 @@ class _$CarWashImpl implements _CarWash {
     required this.id,
     required this.name,
     required this.address,
-    required this.latitude,
-    required this.longitude,
-    this.rating = 0.0,
-    this.reviewCount = 0,
+    this.roadAddress,
+    required this.lat,
+    required this.lng,
     this.phone,
-    this.description,
-    final List<String> facilities = const [],
-    this.thumbnailUrl,
-    this.isOpen = false,
-    this.operatingHours,
+    this.openHours,
     this.bayCount = 0,
-    this.hasDryer = false,
+    this.priceInfo,
     this.hasVacuum = false,
+    this.hasAirGun = false,
+    this.hasMatWash = false,
+    this.hasToilet = false,
+    this.hasWaiting = false,
+    final List<String> images = const [],
+    this.source = 'USER',
+    this.status = 'ACTIVE',
+    this.reportedCount = 0,
     this.createdAt,
-  }) : _facilities = facilities;
+    this.updatedAt,
+    this.distanceM,
+  }) : _images = images;
 
   factory _$CarWashImpl.fromJson(Map<String, dynamic> json) =>
       _$$CarWashImplFromJson(json);
 
+  // ── 기본 정보 ──────────────────────────────────────────────
   @override
   final String id;
   @override
@@ -352,53 +430,76 @@ class _$CarWashImpl implements _CarWash {
   @override
   final String address;
   @override
-  final double latitude;
+  final String? roadAddress;
+  // ── 위치 ───────────────────────────────────────────────────
   @override
-  final double longitude;
+  final double lat;
   @override
-  @JsonKey()
-  final double rating;
-  @override
-  @JsonKey()
-  final int reviewCount;
+  final double lng;
+  // ── 연락처 / 운영 정보 ─────────────────────────────────────
   @override
   final String? phone;
   @override
-  final String? description;
-  final List<String> _facilities;
-  @override
-  @JsonKey()
-  List<String> get facilities {
-    if (_facilities is EqualUnmodifiableListView) return _facilities;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_facilities);
-  }
-
-  @override
-  final String? thumbnailUrl;
-  @override
-  @JsonKey()
-  final bool isOpen;
-  @override
-  final String? operatingHours;
+  final String? openHours;
   @override
   @JsonKey()
   final int bayCount;
-  // 세차 베이 수
   @override
-  @JsonKey()
-  final bool hasDryer;
-  // 건조기 보유 여부
+  final String? priceInfo;
+  // ── 편의시설 ───────────────────────────────────────────────
   @override
   @JsonKey()
   final bool hasVacuum;
-  // 청소기 보유 여부
+  // 청소기
+  @override
+  @JsonKey()
+  final bool hasAirGun;
+  // 에어건
+  @override
+  @JsonKey()
+  final bool hasMatWash;
+  // 매트세척기
+  @override
+  @JsonKey()
+  final bool hasToilet;
+  // 화장실
+  @override
+  @JsonKey()
+  final bool hasWaiting;
+  // 대기 공간
+  // ── 이미지 ─────────────────────────────────────────────────
+  final List<String> _images;
+  // 대기 공간
+  // ── 이미지 ─────────────────────────────────────────────────
+  @override
+  @JsonKey()
+  List<String> get images {
+    if (_images is EqualUnmodifiableListView) return _images;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_images);
+  }
+
+  // ── 메타 ───────────────────────────────────────────────────
+  @override
+  @JsonKey()
+  final String source;
+  @override
+  @JsonKey()
+  final String status;
+  @override
+  @JsonKey()
+  final int reportedCount;
   @override
   final DateTime? createdAt;
+  @override
+  final DateTime? updatedAt;
+  // ── nearby-carwash Edge Function 응답 추가 필드 ────────────
+  @override
+  final double? distanceM;
 
   @override
   String toString() {
-    return 'CarWash(id: $id, name: $name, address: $address, latitude: $latitude, longitude: $longitude, rating: $rating, reviewCount: $reviewCount, phone: $phone, description: $description, facilities: $facilities, thumbnailUrl: $thumbnailUrl, isOpen: $isOpen, operatingHours: $operatingHours, bayCount: $bayCount, hasDryer: $hasDryer, hasVacuum: $hasVacuum, createdAt: $createdAt)';
+    return 'CarWash(id: $id, name: $name, address: $address, roadAddress: $roadAddress, lat: $lat, lng: $lng, phone: $phone, openHours: $openHours, bayCount: $bayCount, priceInfo: $priceInfo, hasVacuum: $hasVacuum, hasAirGun: $hasAirGun, hasMatWash: $hasMatWash, hasToilet: $hasToilet, hasWaiting: $hasWaiting, images: $images, source: $source, status: $status, reportedCount: $reportedCount, createdAt: $createdAt, updatedAt: $updatedAt, distanceM: $distanceM)';
   }
 
   @override
@@ -409,57 +510,67 @@ class _$CarWashImpl implements _CarWash {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.address, address) || other.address == address) &&
-            (identical(other.latitude, latitude) ||
-                other.latitude == latitude) &&
-            (identical(other.longitude, longitude) ||
-                other.longitude == longitude) &&
-            (identical(other.rating, rating) || other.rating == rating) &&
-            (identical(other.reviewCount, reviewCount) ||
-                other.reviewCount == reviewCount) &&
+            (identical(other.roadAddress, roadAddress) ||
+                other.roadAddress == roadAddress) &&
+            (identical(other.lat, lat) || other.lat == lat) &&
+            (identical(other.lng, lng) || other.lng == lng) &&
             (identical(other.phone, phone) || other.phone == phone) &&
-            (identical(other.description, description) ||
-                other.description == description) &&
-            const DeepCollectionEquality().equals(
-              other._facilities,
-              _facilities,
-            ) &&
-            (identical(other.thumbnailUrl, thumbnailUrl) ||
-                other.thumbnailUrl == thumbnailUrl) &&
-            (identical(other.isOpen, isOpen) || other.isOpen == isOpen) &&
-            (identical(other.operatingHours, operatingHours) ||
-                other.operatingHours == operatingHours) &&
+            (identical(other.openHours, openHours) ||
+                other.openHours == openHours) &&
             (identical(other.bayCount, bayCount) ||
                 other.bayCount == bayCount) &&
-            (identical(other.hasDryer, hasDryer) ||
-                other.hasDryer == hasDryer) &&
+            (identical(other.priceInfo, priceInfo) ||
+                other.priceInfo == priceInfo) &&
             (identical(other.hasVacuum, hasVacuum) ||
                 other.hasVacuum == hasVacuum) &&
+            (identical(other.hasAirGun, hasAirGun) ||
+                other.hasAirGun == hasAirGun) &&
+            (identical(other.hasMatWash, hasMatWash) ||
+                other.hasMatWash == hasMatWash) &&
+            (identical(other.hasToilet, hasToilet) ||
+                other.hasToilet == hasToilet) &&
+            (identical(other.hasWaiting, hasWaiting) ||
+                other.hasWaiting == hasWaiting) &&
+            const DeepCollectionEquality().equals(other._images, _images) &&
+            (identical(other.source, source) || other.source == source) &&
+            (identical(other.status, status) || other.status == status) &&
+            (identical(other.reportedCount, reportedCount) ||
+                other.reportedCount == reportedCount) &&
             (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt));
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            (identical(other.distanceM, distanceM) ||
+                other.distanceM == distanceM));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     name,
     address,
-    latitude,
-    longitude,
-    rating,
-    reviewCount,
+    roadAddress,
+    lat,
+    lng,
     phone,
-    description,
-    const DeepCollectionEquality().hash(_facilities),
-    thumbnailUrl,
-    isOpen,
-    operatingHours,
+    openHours,
     bayCount,
-    hasDryer,
+    priceInfo,
     hasVacuum,
+    hasAirGun,
+    hasMatWash,
+    hasToilet,
+    hasWaiting,
+    const DeepCollectionEquality().hash(_images),
+    source,
+    status,
+    reportedCount,
     createdAt,
-  );
+    updatedAt,
+    distanceM,
+  ]);
 
   /// Create a copy of CarWash
   /// with the given fields replaced by the non-null parameter values.
@@ -480,24 +591,30 @@ abstract class _CarWash implements CarWash {
     required final String id,
     required final String name,
     required final String address,
-    required final double latitude,
-    required final double longitude,
-    final double rating,
-    final int reviewCount,
+    final String? roadAddress,
+    required final double lat,
+    required final double lng,
     final String? phone,
-    final String? description,
-    final List<String> facilities,
-    final String? thumbnailUrl,
-    final bool isOpen,
-    final String? operatingHours,
+    final String? openHours,
     final int bayCount,
-    final bool hasDryer,
+    final String? priceInfo,
     final bool hasVacuum,
+    final bool hasAirGun,
+    final bool hasMatWash,
+    final bool hasToilet,
+    final bool hasWaiting,
+    final List<String> images,
+    final String source,
+    final String status,
+    final int reportedCount,
     final DateTime? createdAt,
+    final DateTime? updatedAt,
+    final double? distanceM,
   }) = _$CarWashImpl;
 
   factory _CarWash.fromJson(Map<String, dynamic> json) = _$CarWashImpl.fromJson;
 
+  // ── 기본 정보 ──────────────────────────────────────────────
   @override
   String get id;
   @override
@@ -505,33 +622,44 @@ abstract class _CarWash implements CarWash {
   @override
   String get address;
   @override
-  double get latitude;
+  String? get roadAddress; // ── 위치 ───────────────────────────────────────────────────
   @override
-  double get longitude;
+  double get lat;
   @override
-  double get rating;
-  @override
-  int get reviewCount;
+  double get lng; // ── 연락처 / 운영 정보 ─────────────────────────────────────
   @override
   String? get phone;
   @override
-  String? get description;
+  String? get openHours;
   @override
-  List<String> get facilities;
+  int get bayCount;
   @override
-  String? get thumbnailUrl;
+  String? get priceInfo; // ── 편의시설 ───────────────────────────────────────────────
   @override
-  bool get isOpen;
+  bool get hasVacuum; // 청소기
   @override
-  String? get operatingHours;
+  bool get hasAirGun; // 에어건
   @override
-  int get bayCount; // 세차 베이 수
+  bool get hasMatWash; // 매트세척기
   @override
-  bool get hasDryer; // 건조기 보유 여부
+  bool get hasToilet; // 화장실
   @override
-  bool get hasVacuum; // 청소기 보유 여부
+  bool get hasWaiting; // 대기 공간
+  // ── 이미지 ─────────────────────────────────────────────────
+  @override
+  List<String> get images; // ── 메타 ───────────────────────────────────────────────────
+  @override
+  String get source;
+  @override
+  String get status;
+  @override
+  int get reportedCount;
   @override
   DateTime? get createdAt;
+  @override
+  DateTime? get updatedAt; // ── nearby-carwash Edge Function 응답 추가 필드 ────────────
+  @override
+  double? get distanceM;
 
   /// Create a copy of CarWash
   /// with the given fields replaced by the non-null parameter values.

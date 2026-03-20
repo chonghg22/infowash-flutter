@@ -33,8 +33,11 @@ _$CarWashSummaryImpl _$$CarWashSummaryImplFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       name: json['name'] as String,
       address: json['address'] as String,
-      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
-      thumbnailUrl: json['thumbnailUrl'] as String?,
+      images:
+          (json['images'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$$CarWashSummaryImplToJson(
@@ -43,6 +46,5 @@ Map<String, dynamic> _$$CarWashSummaryImplToJson(
   'id': instance.id,
   'name': instance.name,
   'address': instance.address,
-  'rating': instance.rating,
-  'thumbnailUrl': instance.thumbnailUrl,
+  'images': instance.images,
 };

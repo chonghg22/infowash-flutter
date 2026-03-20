@@ -14,8 +14,9 @@ final favoriteListProvider = FutureProvider.autoDispose<List<Favorite>>((ref) as
   if (user == null) return [];
 
   final data = await Supabase.instance.client
-      .from('favorites')
-      .select('*, car_washes(id, name, address, rating, thumbnail_url)')
+      .schema('infowash')
+      .from('favorite')
+      .select('*, car_wash(id, name, address, images)')
       .eq('user_id', user.id)
       .order('created_at', ascending: false);
 
@@ -99,11 +100,11 @@ class FavoriteScreen extends ConsumerWidget {
                         color: const Color(0xFFE3F2FD),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: carWash?.thumbnailUrl != null
+                      child: (carWash?.images.isNotEmpty ?? false)
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: Image.network(
-                                carWash!.thumbnailUrl!,
+                                carWash!.images.first,
                                 fit: BoxFit.cover,
                               ),
                             )
@@ -125,18 +126,9 @@ class FavoriteScreen extends ConsumerWidget {
                         fontSize: 12,
                       ),
                     ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.star, size: 14, color: AppTheme.starColor),
-                        const SizedBox(width: 2),
-                        Text(
-                          carWash?.rating.toStringAsFixed(1) ?? '-',
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
-                      ],
+                    trailing: const Icon(
+                      Icons.chevron_right,
+                      color: AppTheme.textSecondary,
                     ),
                     onTap: () => context.push(
                       AppRoutes.detailPath(fav.carWashId),

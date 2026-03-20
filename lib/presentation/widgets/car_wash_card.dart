@@ -2,50 +2,50 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../data/models/car_wash.dart';
-import 'rating_bar.dart';
 
 class CarWashCard extends StatelessWidget {
   const CarWashCard({
     super.key,
     required this.carWash,
-    this.showDistance = false,
-    this.distanceKm,
   });
 
   final CarWash carWash;
-  final bool showDistance;
-  final double? distanceKm;
 
   @override
   Widget build(BuildContext context) {
+    final isActive = carWash.status == 'ACTIVE';
+    final firstImage =
+        carWash.images.isNotEmpty ? carWash.images.first : null;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Row(
           children: [
-            // ── 썸네일 ────────────────────────────────────
+            // ── 썸네일 ──────────────────────────────────────
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: SizedBox(
                 width: 72,
                 height: 72,
-                child: carWash.thumbnailUrl != null
+                child: firstImage != null
                     ? Image.network(
-                        carWash.thumbnailUrl!,
+                        firstImage,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _PlaceholderThumbnail(),
+                        errorBuilder: (_, __, ___) =>
+                            const _PlaceholderThumbnail(),
                       )
-                    : _PlaceholderThumbnail(),
+                    : const _PlaceholderThumbnail(),
               ),
             ),
             const SizedBox(width: 14),
 
-            // ── 정보 영역 ──────────────────────────────────
+            // ── 정보 영역 ────────────────────────────────────
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 이름 + 영업 상태
+                  // 이름 + 상태
                   Row(
                     children: [
                       Expanded(
@@ -60,14 +60,14 @@ class CarWashCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      _StatusBadge(isOpen: carWash.isOpen),
+                      _StatusBadge(isActive: isActive),
                     ],
                   ),
                   const SizedBox(height: 4),
 
                   // 주소
                   Text(
-                    carWash.address,
+                    carWash.roadAddress ?? carWash.address,
                     style: const TextStyle(
                       color: AppTheme.textSecondary,
                       fontSize: 12,
@@ -77,47 +77,37 @@ class CarWashCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
 
-                  // 별점 + 리뷰 수
+                  // 거리 + 편의시설 태그
                   Row(
                     children: [
-                      ReadOnlyRatingBar(
-                        rating: carWash.rating,
-                        size: 14,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${carWash.rating.toStringAsFixed(1)} (${carWash.reviewCount})',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.textSecondary,
-                        ),
-                      ),
-                      if (showDistance && distanceKm != null) ...[
-                        const Spacer(),
+                      if (carWash.distanceM != null) ...[
                         Text(
-                          _formatDistance(distanceKm!),
+                          _formatDistance(carWash.distanceM!),
                           style: const TextStyle(
                             fontSize: 12,
                             color: AppTheme.primary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
+                        const SizedBox(width: 8),
                       ],
                     ],
                   ),
 
                   // 편의시설 태그
-                  if (carWash.hasDryer || carWash.hasVacuum || carWash.bayCount > 0) ...[
+                  if (carWash.hasVacuum ||
+                      carWash.hasAirGun ||
+                      carWash.hasMatWash ||
+                      carWash.bayCount > 0) ...[
                     const SizedBox(height: 6),
                     Wrap(
                       spacing: 4,
                       children: [
                         if (carWash.bayCount > 0)
                           _MiniTag('베이 ${carWash.bayCount}개'),
-                        if (carWash.hasDryer)
-                          const _MiniTag('건조기'),
-                        if (carWash.hasVacuum)
-                          const _MiniTag('청소기'),
+                        if (carWash.hasVacuum) const _MiniTag('청소기'),
+                        if (carWash.hasAirGun) const _MiniTag('에어건'),
+                        if (carWash.hasMatWash) const _MiniTag('매트세척기'),
                       ],
                     ),
                   ],
@@ -130,45 +120,42 @@ class CarWashCard extends StatelessWidget {
     );
   }
 
-  String _formatDistance(double km) {
-    if (km < 1) return '${(km * 1000).toInt()}m';
-    return '${km.toStringAsFixed(1)}km';
+  String _formatDistance(double m) {
+    if (m < 1000) return '${m.toInt()}m';
+    return '${(m / 1000).toStringAsFixed(1)}km';
   }
 }
 
 class _PlaceholderThumbnail extends StatelessWidget {
+  const _PlaceholderThumbnail();
+
   @override
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFFE3F2FD),
-      child: const Icon(
-        Icons.local_car_wash,
-        color: AppTheme.primary,
-        size: 36,
-      ),
+      child: const Icon(Icons.local_car_wash, color: AppTheme.primary, size: 36),
     );
   }
 }
 
 class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.isOpen});
-
-  final bool isOpen;
+  const _StatusBadge({required this.isActive});
+  final bool isActive;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: isOpen ? Colors.green.shade50 : Colors.grey.shade100,
+        color: isActive ? Colors.green.shade50 : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
-        isOpen ? '영업중' : '영업종료',
+        isActive ? '운영중' : '운영종료',
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w600,
-          color: isOpen ? Colors.green.shade700 : AppTheme.textSecondary,
+          color: isActive ? Colors.green.shade700 : AppTheme.textSecondary,
         ),
       ),
     );
@@ -177,7 +164,6 @@ class _StatusBadge extends StatelessWidget {
 
 class _MiniTag extends StatelessWidget {
   const _MiniTag(this.label);
-
   final String label;
 
   @override

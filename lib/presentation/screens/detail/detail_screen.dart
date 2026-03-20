@@ -6,7 +6,6 @@ import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../providers/car_wash_provider.dart';
 import '../../../providers/auth_provider.dart';
-import '../../widgets/rating_bar.dart';
 import '../../widgets/ad_banner.dart';
 
 class DetailScreen extends ConsumerWidget {
@@ -24,18 +23,20 @@ class DetailScreen extends ConsumerWidget {
           if (carWash == null) {
             return const Center(child: Text('세차장 정보를 찾을 수 없습니다.'));
           }
+
+          final isActive = carWash.status == 'ACTIVE';
+          final firstImage =
+              carWash.images.isNotEmpty ? carWash.images.first : null;
+
           return CustomScrollView(
             slivers: [
-              // ── SliverAppBar (썸네일) ─────────────────────────
+              // ── SliverAppBar (이미지) ─────────────────────────
               SliverAppBar(
                 expandedHeight: 220,
                 pinned: true,
                 flexibleSpace: FlexibleSpaceBar(
-                  background: carWash.thumbnailUrl != null
-                      ? Image.network(
-                          carWash.thumbnailUrl!,
-                          fit: BoxFit.cover,
-                        )
+                  background: firstImage != null
+                      ? Image.network(firstImage, fit: BoxFit.cover)
                       : Container(
                           color: AppTheme.primaryLight,
                           child: const Icon(
@@ -50,8 +51,7 @@ class DetailScreen extends ConsumerWidget {
                   IconButton(
                     icon: const Icon(Icons.favorite_border),
                     onPressed: () {
-                      final isSignedIn = ref.read(isSignedInProvider);
-                      if (!isSignedIn) {
+                      if (!ref.read(isSignedInProvider)) {
                         context.push(AppRoutes.login);
                         return;
                       }
@@ -81,47 +81,11 @@ class DetailScreen extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               carWash.name,
-                              style: Theme.of(context).textTheme.headlineSmall,
+                              style:
+                                  Theme.of(context).textTheme.headlineSmall,
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: carWash.isOpen
-                                  ? Colors.green.shade50
-                                  : Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              carWash.isOpen ? '영업중' : '영업종료',
-                              style: TextStyle(
-                                color: carWash.isOpen
-                                    ? Colors.green
-                                    : AppTheme.textSecondary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-
-                      // ── 별점 ─────────────────────────────────
-                      Row(
-                        children: [
-                          ReadOnlyRatingBar(rating: carWash.rating, size: 18),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${carWash.rating.toStringAsFixed(1)} (${carWash.reviewCount})',
-                            style: const TextStyle(
-                              color: AppTheme.textSecondary,
-                              fontSize: 13,
-                            ),
-                          ),
+                          _StatusBadge(isActive: isActive),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -131,7 +95,7 @@ class DetailScreen extends ConsumerWidget {
                       // ── 주소 ─────────────────────────────────
                       _InfoRow(
                         icon: Icons.location_on_outlined,
-                        text: carWash.address,
+                        text: carWash.roadAddress ?? carWash.address,
                       ),
                       if (carWash.phone != null) ...[
                         const SizedBox(height: 12),
@@ -140,11 +104,18 @@ class DetailScreen extends ConsumerWidget {
                           text: carWash.phone!,
                         ),
                       ],
-                      if (carWash.operatingHours != null) ...[
+                      if (carWash.openHours != null) ...[
                         const SizedBox(height: 12),
                         _InfoRow(
                           icon: Icons.access_time,
-                          text: carWash.operatingHours!,
+                          text: carWash.openHours!,
+                        ),
+                      ],
+                      if (carWash.priceInfo != null) ...[
+                        const SizedBox(height: 12),
+                        _InfoRow(
+                          icon: Icons.payments_outlined,
+                          text: carWash.priceInfo!,
                         ),
                       ],
                       const SizedBox(height: 16),
@@ -166,19 +137,31 @@ class DetailScreen extends ConsumerWidget {
                               label: '베이 ${carWash.bayCount}개',
                               icon: Icons.garage_outlined,
                             ),
-                          if (carWash.hasDryer)
-                            const _FacilityChip(
-                              label: '건조기',
-                              icon: Icons.air,
-                            ),
                           if (carWash.hasVacuum)
                             const _FacilityChip(
                               label: '청소기',
                               icon: Icons.cleaning_services,
                             ),
-                          ...carWash.facilities.map(
-                            (f) => _FacilityChip(label: f),
-                          ),
+                          if (carWash.hasAirGun)
+                            const _FacilityChip(
+                              label: '에어건',
+                              icon: Icons.air,
+                            ),
+                          if (carWash.hasMatWash)
+                            const _FacilityChip(
+                              label: '매트세척기',
+                              icon: Icons.local_laundry_service,
+                            ),
+                          if (carWash.hasToilet)
+                            const _FacilityChip(
+                              label: '화장실',
+                              icon: Icons.wc,
+                            ),
+                          if (carWash.hasWaiting)
+                            const _FacilityChip(
+                              label: '대기공간',
+                              icon: Icons.weekend,
+                            ),
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -192,7 +175,7 @@ class DetailScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '리뷰 ${carWash.reviewCount}',
+                            '리뷰',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           TextButton(
@@ -211,9 +194,32 @@ class DetailScreen extends ConsumerWidget {
             ],
           );
         },
-        loading: () =>
-            const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('오류: $e')),
+      ),
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({required this.isActive});
+  final bool isActive;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: isActive ? Colors.green.shade50 : Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        isActive ? '운영중' : '운영종료',
+        style: TextStyle(
+          color: isActive ? Colors.green : AppTheme.textSecondary,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -221,7 +227,6 @@ class DetailScreen extends ConsumerWidget {
 
 class _InfoRow extends StatelessWidget {
   const _InfoRow({required this.icon, required this.text});
-
   final IconData icon;
   final String text;
 
@@ -232,9 +237,7 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(icon, size: 18, color: AppTheme.textSecondary),
         const SizedBox(width: 8),
-        Expanded(
-          child: Text(text, style: const TextStyle(fontSize: 14)),
-        ),
+        Expanded(child: Text(text, style: const TextStyle(fontSize: 14))),
       ],
     );
   }
@@ -242,7 +245,6 @@ class _InfoRow extends StatelessWidget {
 
 class _FacilityChip extends StatelessWidget {
   const _FacilityChip({required this.label, this.icon});
-
   final String label;
   final IconData? icon;
 

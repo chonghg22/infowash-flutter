@@ -93,6 +93,9 @@ class AuthNotifier extends Notifier<AsyncValue<User?>> {
         OAuthProvider.kakao,
         redirectTo: 'io.supabase.infowash://login-callback',
         authScreenLaunchMode: LaunchMode.externalApplication,
+        queryParams: {
+          'scope': '', // 빈 스코프로 기본 스코프 요청 방지 (KOE205 해결)
+        },
       );
       // 브라우저가 열리고 즉시 반환됨 — 실제 로그인 완료는 authSessionProvider가 감지
       // 상태를 즉시 리셋하지 않고 loading 유지 (LoginScreen이 resume 시 리셋)

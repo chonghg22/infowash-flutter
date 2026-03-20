@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/car_wash.dart';
+import '../models/review.dart';
 
 class CarWashRepository {
   CarWashRepository(this._client);
@@ -72,6 +73,60 @@ class CarWashRepository {
 
     if (data == null) return null;
     return CarWash.fromJson(data);
+  }
+
+  /// 세차장 리뷰 목록 조회
+  Future<List<Review>> getReviews(String carWashId) async {
+    final data = await _client
+        .schema(_schema)
+        .from('review')
+        .select()
+        .eq('car_wash_id', carWashId)
+        .order('created_at', ascending: false)
+        .limit(20);
+
+    return (data as List<dynamic>)
+        .map((e) => Review.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// 즐겨찾기 여부 확인
+  Future<bool> isFavorite(String carWashId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return false;
+
+    final data = await _client
+        .schema(_schema)
+        .from('favorite')
+        .select('id')
+        .eq('car_wash_id', carWashId)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+    return data != null;
+  }
+
+  /// 즐겨찾기 토글 — 추가 시 true, 제거 시 false 반환
+  Future<bool> toggleFavorite(String carWashId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('로그인이 필요합니다.');
+
+    final exists = await isFavorite(carWashId);
+    if (exists) {
+      await _client
+          .schema(_schema)
+          .from('favorite')
+          .delete()
+          .eq('car_wash_id', carWashId)
+          .eq('user_id', user.id);
+      return false;
+    } else {
+      await _client.schema(_schema).from('favorite').insert({
+        'car_wash_id': carWashId,
+        'user_id': user.id,
+      });
+      return true;
+    }
   }
 
   /// 정보 수정 제안 (신고/제보)

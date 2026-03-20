@@ -42,20 +42,18 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
   }
 
   Future<void> _launchNaverMap(CarWash carWash) async {
-    final name = Uri.encodeComponent(carWash.name);
-    final naverUri = Uri.parse(
-      'nmap://route.walk?dlat=${carWash.lat}&dlng=${carWash.lng}'
-      '&dname=$name&appname=com.infowash.app',
-    );
+    final naverMapUrl =
+        'nmap://navigation?dlat=${carWash.lat}&dlng=${carWash.lng}'
+        '&dname=${Uri.encodeComponent(carWash.name)}&appname=com.infowash.app';
+    final uri = Uri.parse(naverMapUrl);
 
-    if (await canLaunchUrl(naverUri)) {
-      await launchUrl(naverUri);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
     } else {
-      // 네이버맵 미설치 → 플레이스토어로 이동
-      final storeUri = Uri.parse(
-        'market://details?id=com.nhn.android.nmap',
+      await launchUrl(
+        Uri.parse('market://details?id=com.nhn.android.nmap'),
+        mode: LaunchMode.externalApplication,
       );
-      if (await canLaunchUrl(storeUri)) await launchUrl(storeUri);
     }
   }
 
@@ -372,7 +370,7 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
                         child: OutlinedButton.icon(
                           onPressed: () => _launchNaverMap(carWash),
                           icon: const Icon(Icons.directions, size: 18),
-                          label: const Text('네이버맵 길찾기'),
+                          label: const Text('길찾기'),
                         ),
                       ),
                       const SizedBox(width: 12),

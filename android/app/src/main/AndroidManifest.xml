@@ -69,5 +69,7 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="kakaocominfowashapp" />
         </intent>
+        <!-- 네이버지도 앱 (길찾기) -->
+        <package android:name="com.nhn.android.nmap"/>
     </queries>
 </manifest>

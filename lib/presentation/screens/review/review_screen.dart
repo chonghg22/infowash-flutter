@@ -22,7 +22,9 @@ class ReviewScreen extends ConsumerStatefulWidget {
 }
 
 class _ReviewScreenState extends ConsumerState<ReviewScreen> {
-  double _rating = 0;
+  int _scoreClean = 0;
+  int _scoreFacility = 0;
+  int _scorePrice = 0;
   final _contentController = TextEditingController();
   bool _isSubmitting = false;
   final List<XFile> _selectedImages = [];
@@ -82,9 +84,9 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
 
   // ── 제출 ──────────────────────────────────────────────────────────────────
   Future<void> _submit() async {
-    if (_rating == 0) {
+    if (_scoreClean == 0 || _scoreFacility == 0 || _scorePrice == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('별점을 선택해주세요.')),
+        const SnackBar(content: Text('모든 항목의 별점을 선택해주세요.')),
       );
       return;
     }
@@ -108,7 +110,9 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
       await repo.create(
         carWashId: widget.carWashId,
         userId: user.id,
-        rating: _rating,
+        scoreClean: _scoreClean,
+        scoreFacility: _scoreFacility,
+        scorePrice: _scorePrice,
         content: _contentController.text.trim(),
         imageUrls: imageUrls,
       );
@@ -141,19 +145,22 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
             // ── 별점 선택 ─────────────────────────────────────
             Text('별점', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 12),
-            Center(
-              child: InteractiveRatingBar(
-                initialRating: _rating,
-                size: 40,
-                onRatingChanged: (r) => setState(() => _rating = r),
-              ),
+            _ScoreRow(
+              label: '청결도',
+              score: _scoreClean,
+              onChanged: (v) => setState(() => _scoreClean = v),
             ),
             const SizedBox(height: 8),
-            Center(
-              child: Text(
-                _rating == 0 ? '별점을 선택하세요' : _ratingLabel(_rating),
-                style: const TextStyle(color: AppTheme.textSecondary),
-              ),
+            _ScoreRow(
+              label: '시설',
+              score: _scoreFacility,
+              onChanged: (v) => setState(() => _scoreFacility = v),
+            ),
+            const SizedBox(height: 8),
+            _ScoreRow(
+              label: '가격대비',
+              score: _scorePrice,
+              onChanged: (v) => setState(() => _scorePrice = v),
             ),
             const SizedBox(height: 24),
 
@@ -242,12 +249,40 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
     );
   }
 
-  String _ratingLabel(double rating) {
-    if (rating >= 5) return '최고예요!';
-    if (rating >= 4) return '좋아요';
-    if (rating >= 3) return '보통이에요';
-    if (rating >= 2) return '별로예요';
-    return '최악이에요';
+}
+
+// ── 항목별 별점 행 ────────────────────────────────────────────────────────────
+class _ScoreRow extends StatelessWidget {
+  const _ScoreRow({
+    required this.label,
+    required this.score,
+    required this.onChanged,
+  });
+
+  final String label;
+  final int score;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 64,
+          child: Text(label, style: const TextStyle(fontSize: 14)),
+        ),
+        InteractiveRatingBar(
+          initialRating: score.toDouble(),
+          size: 28,
+          onRatingChanged: (r) => onChanged(r.round()),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          score == 0 ? '-' : '$score점',
+          style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+        ),
+      ],
+    );
   }
 }
 

@@ -33,12 +33,14 @@ class ReviewRepository {
   Future<Review> create({
     required String carWashId,
     required String userId,
-    required double rating,
+    required int scoreClean,
+    required int scoreFacility,
+    required int scorePrice,
     required String content,
     List<String> imageUrls = const [],
   }) async {
     // user_profile에서 닉네임 조회
-    String? nickname;
+    String nickname = '익명';
     try {
       final profile = await _client
           .schema(_schema)
@@ -46,9 +48,9 @@ class ReviewRepository {
           .select('nickname')
           .eq('id', userId)
           .maybeSingle();
-      nickname = profile?['nickname'] as String?;
+      nickname = profile?['nickname'] as String? ?? '익명';
     } catch (_) {
-      // 닉네임 조회 실패 시 null로 진행
+      // 닉네임 조회 실패 시 '익명'으로 진행
     }
 
     final data = await _client
@@ -57,10 +59,12 @@ class ReviewRepository {
         .insert({
           'car_wash_id': carWashId,
           'user_id': userId,
-          'rating': rating,
+          'nickname': nickname,
+          'score_clean': scoreClean,
+          'score_facility': scoreFacility,
+          'score_price': scorePrice,
           'content': content,
           'images': imageUrls,
-          if (nickname != null) 'nickname': nickname,
         })
         .select()
         .single();

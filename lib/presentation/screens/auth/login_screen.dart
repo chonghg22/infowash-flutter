@@ -83,31 +83,12 @@ class LoginScreen extends ConsumerWidget {
                 ),
 
               // ── 카카오 로그인 ─────────────────────────────
-              _SocialLoginButton(
+              _KakaoLoginButton(
                 onPressed: authState is AsyncLoading
                     ? null
                     : () => ref
                         .read(authNotifierProvider.notifier)
                         .signInWithKakao(),
-                backgroundColor: const Color(0xFFFEE500),
-                foregroundColor: const Color(0xFF191919),
-                icon: Icons.chat_bubble,
-                label: '카카오로 계속하기',
-              ),
-              const SizedBox(height: 12),
-
-              // ── 구글 로그인 ───────────────────────────────
-              _SocialLoginButton(
-                onPressed: authState is AsyncLoading
-                    ? null
-                    : () => ref
-                        .read(authNotifierProvider.notifier)
-                        .signInWithGoogle(),
-                backgroundColor: Colors.white,
-                foregroundColor: AppTheme.textPrimary,
-                icon: Icons.g_mobiledata,
-                label: '구글로 계속하기',
-                borderColor: AppTheme.divider,
               ),
               const SizedBox(height: 16),
 
@@ -159,44 +140,28 @@ Future<void> showLoginBottomSheet(
   );
 }
 
-class _SocialLoginButton extends StatelessWidget {
-  const _SocialLoginButton({
-    required this.onPressed,
-    required this.backgroundColor,
-    required this.foregroundColor,
-    required this.icon,
-    required this.label,
-    this.borderColor,
-  });
+class _KakaoLoginButton extends StatelessWidget {
+  const _KakaoLoginButton({required this.onPressed});
 
   final VoidCallback? onPressed;
-  final Color backgroundColor;
-  final Color foregroundColor;
-  final IconData icon;
-  final String label;
-  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       height: 52,
-      child: ElevatedButton.icon(
+      child: ElevatedButton(
         onPressed: onPressed,
-        icon: Icon(icon, size: 22),
-        label: Text(label),
         style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor,
-          foregroundColor: foregroundColor,
-          elevation: borderColor != null ? 0 : 2,
-          side: borderColor != null
-              ? BorderSide(color: borderColor!)
-              : null,
+          backgroundColor: const Color(0xFFFEE500),
+          foregroundColor: const Color(0xFF191919),
+          elevation: 2,
           textStyle: const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
         ),
+        child: const Text('카카오 로그인'),
       ),
     );
   }

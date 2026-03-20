@@ -98,20 +98,6 @@ class AuthNotifier extends Notifier<AsyncValue<User?>> {
     }
   }
 
-  Future<void> signInWithGoogle() async {
-    state = const AsyncValue.loading();
-    try {
-      await Supabase.instance.client.auth.signInWithOAuth(
-        OAuthProvider.google,
-        redirectTo: 'io.supabase.infowash://login-callback',
-        authScreenLaunchMode: LaunchMode.externalApplication,
-      );
-      state = AsyncValue.data(Supabase.instance.client.auth.currentUser);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
-
   Future<void> signOut() async {
     state = const AsyncValue.loading();
     try {

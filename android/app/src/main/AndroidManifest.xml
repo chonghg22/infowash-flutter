@@ -48,6 +48,11 @@
             android:value="ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX" />
         -->
 
+        <!-- 네이버 지도 Client ID -->
+        <meta-data
+            android:name="com.naver.maps.map.CLIENT_ID"
+            android:value="${naverMapClientId}" />
+
         <!-- Flutter embedding -->
         <meta-data
             android:name="flutterEmbedding"

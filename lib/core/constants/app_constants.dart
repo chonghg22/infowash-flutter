@@ -6,26 +6,21 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // ── Supabase ──────────────────────────────────────────────────
-  static const String supabaseUrl = String.fromEnvironment(
-    'SUPABASE_URL',
-    defaultValue: 'https://YOUR_PROJECT.supabase.co',
-  );
-  static const String supabaseAnonKey = String.fromEnvironment(
-    'SUPABASE_ANON_KEY',
-    defaultValue: 'YOUR_ANON_KEY',
-  );
+  static const String supabaseUrl =
+      'REDACTED_SUPABASE_URL';
+  static const String supabaseAnonKey =
+      'REDACTED_JWT_HEADER'
+      'REDACTED_JWT_PAYLOAD'
+      'REDACTED_JWT_SIGNATURE';
 
   // ── Naver Map ─────────────────────────────────────────────────
-  static const String naverMapClientId = String.fromEnvironment(
-    'NAVER_MAP_CLIENT_ID',
-    defaultValue: 'YOUR_NAVER_MAP_CLIENT_ID',
-  );
+  static const String naverMapClientId = 'REDACTED_NAVER_CLIENT_ID';
 
   // ── Google AdMob ──────────────────────────────────────────────
   static const String admobAppId =
-      'ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX'; // Android App ID
+      'ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX';
   static const String admobBannerUnitId =
-      'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX'; // Banner Ad Unit
+      'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX';
 
   // ── Navigation Tabs ───────────────────────────────────────────
   // 탭 추가 시 이 목록에만 추가하면 됩니다.
@@ -45,7 +40,7 @@ class AppConstants {
   static const int defaultPageSize = 20;
 
   // ── Map Defaults ──────────────────────────────────────────────
-  static const double defaultLatitude = 37.5665;   // 서울 시청
+  static const double defaultLatitude = 37.5665;  // 서울 시청
   static const double defaultLongitude = 126.9780;
   static const double defaultZoomLevel = 12.0;
   static const double searchRadiusKm = 5.0;

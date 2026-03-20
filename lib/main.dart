@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -15,12 +16,11 @@ void main() async {
     anonKey: AppConstants.supabaseAnonKey,
   );
 
-  // ── 네이버 지도 초기화 ─────────────────────────────────────────
-  // TODO: flutter_naver_map 연동 시 아래 주석 해제
-  // await NaverMapSdk.instance.initialize(
-  //   clientId: AppConstants.naverMapClientId,
-  //   onAuthFailed: (e) => debugPrint('NaverMap auth failed: $e'),
-  // );
+  // ── 네이버 지도 SDK 초기화 ─────────────────────────────────────
+  await FlutterNaverMap().init(
+    clientId: AppConstants.naverMapClientId,
+    onAuthFailed: (e) => debugPrint('네이버맵 인증 실패: $e'),
+  );
 
   // ── AdMob 초기화 ───────────────────────────────────────────────
   // TODO: google_mobile_ads 연동 시 아래 주석 해제
@@ -45,7 +45,6 @@ class InfoWashApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
-      // 한국어 로케일 설정
       locale: const Locale('ko', 'KR'),
       supportedLocales: const [
         Locale('ko', 'KR'),

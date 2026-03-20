@@ -20,14 +20,13 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.infowash.infowash"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        applicationId = "com.infowash.app"
+        minSdk = flutter.minSdkVersion  // flutter_naver_map 요구사항
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // 네이버 지도 Client ID (AndroidManifest ${naverMapClientId} 치환)
+        manifestPlaceholders["naverMapClientId"] = "REDACTED_NAVER_CLIENT_ID"
     }
 
     buildTypes {

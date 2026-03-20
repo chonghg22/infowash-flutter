@@ -46,3 +46,6 @@ app.*.map.json
 
 # Claude Code
 .claude/
+
+# Supabase CLI temp files
+supabase/.temp/

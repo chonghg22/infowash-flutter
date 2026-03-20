@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/constants/app_constants.dart';
 import '../data/models/car_wash.dart';
 import '../data/repositories/car_wash_repository.dart';
 import 'location_provider.dart';
@@ -25,6 +26,9 @@ final nearbyCarWashesProvider =
         'lng': position.longitude,
         'radius_km': 5,
         'limit': 20,
+      },
+      headers: {
+        'Authorization': 'Bearer ${AppConstants.supabaseAnonKey}',
       },
     );
 
@@ -78,6 +82,9 @@ final mapNearbyCarWashesProvider =
         'lng': params.lng,
         'radius_km': params.radiusKm,
         'limit': 30,
+      },
+      headers: {
+        'Authorization': 'Bearer ${AppConstants.supabaseAnonKey}',
       },
     );
     final data = response.data as List<dynamic>;

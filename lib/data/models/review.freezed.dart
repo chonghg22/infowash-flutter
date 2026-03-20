@@ -22,14 +22,24 @@ Review _$ReviewFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Review {
   String get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'car_wash_id')
   String get carWashId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_id')
   String get userId => throw _privateConstructorUsedError;
-  double get rating => throw _privateConstructorUsedError;
+  @JsonKey(name: 'score_clean')
+  int get scoreClean => throw _privateConstructorUsedError;
+  @JsonKey(name: 'score_facility')
+  int get scoreFacility => throw _privateConstructorUsedError;
+  @JsonKey(name: 'score_price')
+  int get scorePrice => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
+  @JsonKey(name: 'images')
   List<String> get imageUrls => throw _privateConstructorUsedError;
+  @JsonKey(name: 'nickname')
   String? get userNickname => throw _privateConstructorUsedError;
-  String? get userAvatarUrl => throw _privateConstructorUsedError;
+  @JsonKey(name: 'created_at')
   DateTime? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'updated_at')
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this Review to a JSON map.
@@ -48,15 +58,16 @@ abstract class $ReviewCopyWith<$Res> {
   @useResult
   $Res call({
     String id,
-    String carWashId,
-    String userId,
-    double rating,
+    @JsonKey(name: 'car_wash_id') String carWashId,
+    @JsonKey(name: 'user_id') String userId,
+    @JsonKey(name: 'score_clean') int scoreClean,
+    @JsonKey(name: 'score_facility') int scoreFacility,
+    @JsonKey(name: 'score_price') int scorePrice,
     String content,
-    List<String> imageUrls,
-    String? userNickname,
-    String? userAvatarUrl,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    @JsonKey(name: 'images') List<String> imageUrls,
+    @JsonKey(name: 'nickname') String? userNickname,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'updated_at') DateTime? updatedAt,
   });
 }
 
@@ -78,11 +89,12 @@ class _$ReviewCopyWithImpl<$Res, $Val extends Review>
     Object? id = null,
     Object? carWashId = null,
     Object? userId = null,
-    Object? rating = null,
+    Object? scoreClean = null,
+    Object? scoreFacility = null,
+    Object? scorePrice = null,
     Object? content = null,
     Object? imageUrls = null,
     Object? userNickname = freezed,
-    Object? userAvatarUrl = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -100,10 +112,18 @@ class _$ReviewCopyWithImpl<$Res, $Val extends Review>
                 ? _value.userId
                 : userId // ignore: cast_nullable_to_non_nullable
                       as String,
-            rating: null == rating
-                ? _value.rating
-                : rating // ignore: cast_nullable_to_non_nullable
-                      as double,
+            scoreClean: null == scoreClean
+                ? _value.scoreClean
+                : scoreClean // ignore: cast_nullable_to_non_nullable
+                      as int,
+            scoreFacility: null == scoreFacility
+                ? _value.scoreFacility
+                : scoreFacility // ignore: cast_nullable_to_non_nullable
+                      as int,
+            scorePrice: null == scorePrice
+                ? _value.scorePrice
+                : scorePrice // ignore: cast_nullable_to_non_nullable
+                      as int,
             content: null == content
                 ? _value.content
                 : content // ignore: cast_nullable_to_non_nullable
@@ -115,10 +135,6 @@ class _$ReviewCopyWithImpl<$Res, $Val extends Review>
             userNickname: freezed == userNickname
                 ? _value.userNickname
                 : userNickname // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            userAvatarUrl: freezed == userAvatarUrl
-                ? _value.userAvatarUrl
-                : userAvatarUrl // ignore: cast_nullable_to_non_nullable
                       as String?,
             createdAt: freezed == createdAt
                 ? _value.createdAt
@@ -144,15 +160,16 @@ abstract class _$$ReviewImplCopyWith<$Res> implements $ReviewCopyWith<$Res> {
   @useResult
   $Res call({
     String id,
-    String carWashId,
-    String userId,
-    double rating,
+    @JsonKey(name: 'car_wash_id') String carWashId,
+    @JsonKey(name: 'user_id') String userId,
+    @JsonKey(name: 'score_clean') int scoreClean,
+    @JsonKey(name: 'score_facility') int scoreFacility,
+    @JsonKey(name: 'score_price') int scorePrice,
     String content,
-    List<String> imageUrls,
-    String? userNickname,
-    String? userAvatarUrl,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    @JsonKey(name: 'images') List<String> imageUrls,
+    @JsonKey(name: 'nickname') String? userNickname,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'updated_at') DateTime? updatedAt,
   });
 }
 
@@ -173,11 +190,12 @@ class __$$ReviewImplCopyWithImpl<$Res>
     Object? id = null,
     Object? carWashId = null,
     Object? userId = null,
-    Object? rating = null,
+    Object? scoreClean = null,
+    Object? scoreFacility = null,
+    Object? scorePrice = null,
     Object? content = null,
     Object? imageUrls = null,
     Object? userNickname = freezed,
-    Object? userAvatarUrl = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -195,10 +213,18 @@ class __$$ReviewImplCopyWithImpl<$Res>
             ? _value.userId
             : userId // ignore: cast_nullable_to_non_nullable
                   as String,
-        rating: null == rating
-            ? _value.rating
-            : rating // ignore: cast_nullable_to_non_nullable
-                  as double,
+        scoreClean: null == scoreClean
+            ? _value.scoreClean
+            : scoreClean // ignore: cast_nullable_to_non_nullable
+                  as int,
+        scoreFacility: null == scoreFacility
+            ? _value.scoreFacility
+            : scoreFacility // ignore: cast_nullable_to_non_nullable
+                  as int,
+        scorePrice: null == scorePrice
+            ? _value.scorePrice
+            : scorePrice // ignore: cast_nullable_to_non_nullable
+                  as int,
         content: null == content
             ? _value.content
             : content // ignore: cast_nullable_to_non_nullable
@@ -210,10 +236,6 @@ class __$$ReviewImplCopyWithImpl<$Res>
         userNickname: freezed == userNickname
             ? _value.userNickname
             : userNickname // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        userAvatarUrl: freezed == userAvatarUrl
-            ? _value.userAvatarUrl
-            : userAvatarUrl // ignore: cast_nullable_to_non_nullable
                   as String?,
         createdAt: freezed == createdAt
             ? _value.createdAt
@@ -233,15 +255,16 @@ class __$$ReviewImplCopyWithImpl<$Res>
 class _$ReviewImpl implements _Review {
   const _$ReviewImpl({
     required this.id,
-    required this.carWashId,
-    required this.userId,
-    required this.rating,
-    required this.content,
-    final List<String> imageUrls = const [],
-    this.userNickname,
-    this.userAvatarUrl,
-    this.createdAt,
-    this.updatedAt,
+    @JsonKey(name: 'car_wash_id') required this.carWashId,
+    @JsonKey(name: 'user_id') required this.userId,
+    @JsonKey(name: 'score_clean') this.scoreClean = 0,
+    @JsonKey(name: 'score_facility') this.scoreFacility = 0,
+    @JsonKey(name: 'score_price') this.scorePrice = 0,
+    this.content = '',
+    @JsonKey(name: 'images') final List<String> imageUrls = const [],
+    @JsonKey(name: 'nickname') this.userNickname,
+    @JsonKey(name: 'created_at') this.createdAt,
+    @JsonKey(name: 'updated_at') this.updatedAt,
   }) : _imageUrls = imageUrls;
 
   factory _$ReviewImpl.fromJson(Map<String, dynamic> json) =>
@@ -250,16 +273,26 @@ class _$ReviewImpl implements _Review {
   @override
   final String id;
   @override
+  @JsonKey(name: 'car_wash_id')
   final String carWashId;
   @override
+  @JsonKey(name: 'user_id')
   final String userId;
   @override
-  final double rating;
+  @JsonKey(name: 'score_clean')
+  final int scoreClean;
   @override
+  @JsonKey(name: 'score_facility')
+  final int scoreFacility;
+  @override
+  @JsonKey(name: 'score_price')
+  final int scorePrice;
+  @override
+  @JsonKey()
   final String content;
   final List<String> _imageUrls;
   @override
-  @JsonKey()
+  @JsonKey(name: 'images')
   List<String> get imageUrls {
     if (_imageUrls is EqualUnmodifiableListView) return _imageUrls;
     // ignore: implicit_dynamic_type
@@ -267,17 +300,18 @@ class _$ReviewImpl implements _Review {
   }
 
   @override
+  @JsonKey(name: 'nickname')
   final String? userNickname;
   @override
-  final String? userAvatarUrl;
-  @override
+  @JsonKey(name: 'created_at')
   final DateTime? createdAt;
   @override
+  @JsonKey(name: 'updated_at')
   final DateTime? updatedAt;
 
   @override
   String toString() {
-    return 'Review(id: $id, carWashId: $carWashId, userId: $userId, rating: $rating, content: $content, imageUrls: $imageUrls, userNickname: $userNickname, userAvatarUrl: $userAvatarUrl, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Review(id: $id, carWashId: $carWashId, userId: $userId, scoreClean: $scoreClean, scoreFacility: $scoreFacility, scorePrice: $scorePrice, content: $content, imageUrls: $imageUrls, userNickname: $userNickname, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -289,7 +323,12 @@ class _$ReviewImpl implements _Review {
             (identical(other.carWashId, carWashId) ||
                 other.carWashId == carWashId) &&
             (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.rating, rating) || other.rating == rating) &&
+            (identical(other.scoreClean, scoreClean) ||
+                other.scoreClean == scoreClean) &&
+            (identical(other.scoreFacility, scoreFacility) ||
+                other.scoreFacility == scoreFacility) &&
+            (identical(other.scorePrice, scorePrice) ||
+                other.scorePrice == scorePrice) &&
             (identical(other.content, content) || other.content == content) &&
             const DeepCollectionEquality().equals(
               other._imageUrls,
@@ -297,8 +336,6 @@ class _$ReviewImpl implements _Review {
             ) &&
             (identical(other.userNickname, userNickname) ||
                 other.userNickname == userNickname) &&
-            (identical(other.userAvatarUrl, userAvatarUrl) ||
-                other.userAvatarUrl == userAvatarUrl) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -312,11 +349,12 @@ class _$ReviewImpl implements _Review {
     id,
     carWashId,
     userId,
-    rating,
+    scoreClean,
+    scoreFacility,
+    scorePrice,
     content,
     const DeepCollectionEquality().hash(_imageUrls),
     userNickname,
-    userAvatarUrl,
     createdAt,
     updatedAt,
   );
@@ -338,15 +376,16 @@ class _$ReviewImpl implements _Review {
 abstract class _Review implements Review {
   const factory _Review({
     required final String id,
-    required final String carWashId,
-    required final String userId,
-    required final double rating,
-    required final String content,
-    final List<String> imageUrls,
-    final String? userNickname,
-    final String? userAvatarUrl,
-    final DateTime? createdAt,
-    final DateTime? updatedAt,
+    @JsonKey(name: 'car_wash_id') required final String carWashId,
+    @JsonKey(name: 'user_id') required final String userId,
+    @JsonKey(name: 'score_clean') final int scoreClean,
+    @JsonKey(name: 'score_facility') final int scoreFacility,
+    @JsonKey(name: 'score_price') final int scorePrice,
+    final String content,
+    @JsonKey(name: 'images') final List<String> imageUrls,
+    @JsonKey(name: 'nickname') final String? userNickname,
+    @JsonKey(name: 'created_at') final DateTime? createdAt,
+    @JsonKey(name: 'updated_at') final DateTime? updatedAt,
   }) = _$ReviewImpl;
 
   factory _Review.fromJson(Map<String, dynamic> json) = _$ReviewImpl.fromJson;
@@ -354,22 +393,33 @@ abstract class _Review implements Review {
   @override
   String get id;
   @override
+  @JsonKey(name: 'car_wash_id')
   String get carWashId;
   @override
+  @JsonKey(name: 'user_id')
   String get userId;
   @override
-  double get rating;
+  @JsonKey(name: 'score_clean')
+  int get scoreClean;
+  @override
+  @JsonKey(name: 'score_facility')
+  int get scoreFacility;
+  @override
+  @JsonKey(name: 'score_price')
+  int get scorePrice;
   @override
   String get content;
   @override
+  @JsonKey(name: 'images')
   List<String> get imageUrls;
   @override
+  @JsonKey(name: 'nickname')
   String? get userNickname;
   @override
-  String? get userAvatarUrl;
-  @override
+  @JsonKey(name: 'created_at')
   DateTime? get createdAt;
   @override
+  @JsonKey(name: 'updated_at')
   DateTime? get updatedAt;
 
   /// Create a copy of Review

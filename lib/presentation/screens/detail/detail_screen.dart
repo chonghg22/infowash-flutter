@@ -490,7 +490,7 @@ class _ReviewTile extends StatelessWidget {
               Row(
                 children: List.generate(5, (i) {
                   return Icon(
-                    i < review.rating.round()
+                    i < ((review.scoreClean + review.scoreFacility + review.scorePrice) / 3).round()
                         ? Icons.star
                         : Icons.star_border,
                     size: 14,

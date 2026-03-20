@@ -7,15 +7,16 @@ part 'review.g.dart';
 class Review with _$Review {
   const factory Review({
     required String id,
-    required String carWashId,
-    required String userId,
-    required double rating,
-    required String content,
-    @Default([]) List<String> imageUrls,
-    String? userNickname,
-    String? userAvatarUrl,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    @JsonKey(name: 'car_wash_id') required String carWashId,
+    @JsonKey(name: 'user_id') required String userId,
+    @JsonKey(name: 'score_clean') @Default(0) int scoreClean,
+    @JsonKey(name: 'score_facility') @Default(0) int scoreFacility,
+    @JsonKey(name: 'score_price') @Default(0) int scorePrice,
+    @Default('') String content,
+    @JsonKey(name: 'images') @Default([]) List<String> imageUrls,
+    @JsonKey(name: 'nickname') String? userNickname,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'updated_at') DateTime? updatedAt,
   }) = _Review;
 
   factory Review.fromJson(Map<String, dynamic> json) =>

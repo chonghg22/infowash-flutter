@@ -59,7 +59,7 @@ class ReviewRepository {
           'user_id': userId,
           'rating': rating,
           'content': content,
-          'image_urls': imageUrls,
+          'images': imageUrls,
           if (nickname != null) 'nickname': nickname,
         })
         .select()

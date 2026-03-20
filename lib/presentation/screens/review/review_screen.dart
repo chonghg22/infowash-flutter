@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../providers/auth_provider.dart';
@@ -20,6 +24,7 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   double _rating = 0;
   final _contentController = TextEditingController();
   bool _isSubmitting = false;
+  final List<XFile> _selectedImages = [];
 
   @override
   void dispose() {
@@ -27,6 +32,54 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
     super.dispose();
   }
 
+  // ── 이미지 선택 ────────────────────────────────────────────────────────────
+  Future<void> _pickImages() async {
+    // Android 13+ : READ_MEDIA_IMAGES / 이하 : READ_EXTERNAL_STORAGE
+    final status = await Permission.photos.request();
+
+    if (!status.isGranted) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('사진 접근 권한이 필요합니다.')),
+        );
+      }
+      return;
+    }
+
+    final picker = ImagePicker();
+    final remaining = 3 - _selectedImages.length;
+    if (remaining <= 0) return;
+
+    final picked = await picker.pickMultiImage(limit: remaining);
+    if (picked.isNotEmpty) {
+      setState(() => _selectedImages.addAll(picked));
+    }
+  }
+
+  // ── Supabase Storage 업로드 ────────────────────────────────────────────────
+  Future<List<String>> _uploadImages() async {
+    final client = ref.read(supabaseClientProvider);
+    final urls = <String>[];
+
+    for (final image in _selectedImages) {
+      final bytes = await image.readAsBytes();
+      final ext = image.name.split('.').last.toLowerCase();
+      final fileName = '${DateTime.now().microsecondsSinceEpoch}.$ext';
+      final path = '${widget.carWashId}/$fileName';
+
+      await client.storage
+          .from('review-images')
+          .uploadBinary(path, bytes,
+              fileOptions: const FileOptions(contentType: 'image/jpeg'));
+
+      final url =
+          client.storage.from('review-images').getPublicUrl(path);
+      urls.add(url);
+    }
+    return urls;
+  }
+
+  // ── 제출 ──────────────────────────────────────────────────────────────────
   Future<void> _submit() async {
     if (_rating == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -42,18 +95,21 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
     }
 
     final user = ref.read(currentUserProvider);
-    if (user == null) return; // 라우터 가드가 처리
+    if (user == null) return;
 
     setState(() => _isSubmitting = true);
     try {
-      final repo = ReviewRepository(
-        ref.read(supabaseClientProvider),
-      );
+      // 이미지 업로드
+      final imageUrls =
+          _selectedImages.isNotEmpty ? await _uploadImages() : <String>[];
+
+      final repo = ReviewRepository(ref.read(supabaseClientProvider));
       await repo.create(
         carWashId: widget.carWashId,
         userId: user.id,
         rating: _rating,
         content: _contentController.text.trim(),
+        imageUrls: imageUrls,
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -113,33 +169,54 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
             ),
             const SizedBox(height: 24),
 
-            // ── 사진 첨부 (TODO) ──────────────────────────────
+            // ── 사진 첨부 ─────────────────────────────────────
             Text('사진 첨부', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 4),
+            Text(
+              '최대 3장',
+              style: const TextStyle(
+                  fontSize: 12, color: AppTheme.textSecondary),
+            ),
             const SizedBox(height: 12),
-            GestureDetector(
-              onTap: () {
-                // TODO: 이미지 피커 연동
-              },
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppTheme.divider),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add_photo_alternate_outlined,
-                        color: AppTheme.textSecondary),
-                    SizedBox(height: 4),
-                    Text('사진 추가',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppTheme.textSecondary,
-                        )),
-                  ],
-                ),
+            SizedBox(
+              height: 80,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  // 선택된 이미지 미리보기
+                  ..._selectedImages.map((img) => _ImagePreview(
+                        image: img,
+                        onRemove: () =>
+                            setState(() => _selectedImages.remove(img)),
+                      )),
+                  // 추가 버튼 (최대 3장)
+                  if (_selectedImages.length < 3)
+                    GestureDetector(
+                      onTap: _pickImages,
+                      child: Container(
+                        width: 80,
+                        height: 80,
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: AppTheme.divider),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_photo_alternate_outlined,
+                                color: AppTheme.textSecondary),
+                            SizedBox(height: 4),
+                            Text('사진 추가',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: AppTheme.textSecondary,
+                                )),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             const SizedBox(height: 32),
@@ -170,5 +247,49 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
     if (rating >= 3) return '보통이에요';
     if (rating >= 2) return '별로예요';
     return '최악이에요';
+  }
+}
+
+// ── 이미지 미리보기 위젯 ──────────────────────────────────────────────────────
+class _ImagePreview extends StatelessWidget {
+  const _ImagePreview({required this.image, required this.onRemove});
+
+  final XFile image;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          margin: const EdgeInsets.only(right: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            image: DecorationImage(
+              image: FileImage(File(image.path)),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        Positioned(
+          top: 2,
+          right: 10,
+          child: GestureDetector(
+            onTap: onRemove,
+            child: Container(
+              width: 20,
+              height: 20,
+              decoration: const BoxDecoration(
+                color: Colors.black54,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.close, size: 14, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

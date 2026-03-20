@@ -31,6 +31,7 @@ dependencies:
 
   # Image
   cached_network_image: ^3.4.1
+  image_picker: ^1.0.7
 
   # Ads
   # TODO: AdMob 활성화 시 아래 주석 해제 후 flutter pub get

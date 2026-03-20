@@ -61,6 +61,8 @@ final profileInitProvider = Provider<void>((ref) {
 Future<void> _ensureUserProfile(String userId) async {
   try {
     final client = Supabase.instance.client;
+    debugPrint('👤 _ensureUserProfile: userId=$userId');
+
     final existing = await client
         .schema('infowash')
         .from('user_profile')
@@ -68,15 +70,19 @@ Future<void> _ensureUserProfile(String userId) async {
         .eq('id', userId)
         .maybeSingle();
 
+    debugPrint('👤 기존 프로필: $existing');
+
     if (existing == null) {
       final nickname = generateNickname();
+      debugPrint('👤 생성된 닉네임: $nickname');
       await client.schema('infowash').from('user_profile').insert({
         'id': userId,
         'nickname': nickname,
       });
+      debugPrint('👤 닉네임 저장 완료: $nickname');
     }
-  } catch (_) {
-    // 프로필 생성 실패는 무시 — 다음 로그인 시 재시도
+  } catch (e) {
+    debugPrint('👤 닉네임 생성 에러: $e');
   }
 }
 

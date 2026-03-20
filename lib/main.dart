@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/constants/app_constants.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/utils/nickname_generator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +24,23 @@ void main() async {
       authFlowType: AuthFlowType.pkce,
     ),
   );
+
+  // ── 로그인 이벤트 직접 리스너 (Riverpod 외부, 타이밍 무관) ────
+  Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
+    debugPrint('🔐 Auth event: ${data.event}, user: ${data.session?.user.id}');
+    if (data.event == AuthChangeEvent.signedIn ||
+        data.event == AuthChangeEvent.initialSession) {
+      final user = data.session?.user;
+      if (user != null) await _ensureProfileInMain(user.id);
+    }
+  });
+
+  // ── 앱 시작 시 이미 로그인된 유저 프로필 보장 ─────────────────
+  final currentUser = Supabase.instance.client.auth.currentUser;
+  if (currentUser != null) {
+    debugPrint('🔐 앱 시작 시 기존 유저 확인: ${currentUser.id}');
+    await _ensureProfileInMain(currentUser.id);
+  }
 
   // ── 딥링크 처리 (카카오 OAuth 콜백) ───────────────────────────
   final appLinks = AppLinks();
@@ -56,6 +74,31 @@ void main() async {
       child: InfoWashApp(),
     ),
   );
+}
+
+Future<void> _ensureProfileInMain(String userId) async {
+  try {
+    final client = Supabase.instance.client;
+    final existing = await client
+        .schema('infowash')
+        .from('user_profile')
+        .select('id')
+        .eq('id', userId)
+        .maybeSingle();
+
+    debugPrint('🔐 기존 프로필: $existing');
+
+    if (existing == null) {
+      final nickname = generateNickname();
+      await client.schema('infowash').from('user_profile').insert({
+        'id': userId,
+        'nickname': nickname,
+      });
+      debugPrint('🔐 닉네임 저장 완료: $nickname');
+    }
+  } catch (e) {
+    debugPrint('🔐 닉네임 생성 에러: $e');
+  }
 }
 
 class InfoWashApp extends ConsumerWidget {

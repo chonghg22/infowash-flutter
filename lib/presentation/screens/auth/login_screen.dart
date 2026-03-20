@@ -8,40 +8,70 @@ import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../providers/auth_provider.dart';
 
-class LoginScreen extends ConsumerWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key, this.onLoginSuccess});
 
   final VoidCallback? onLoginSuccess;
 
-  void _close(BuildContext context) {
-    if (Navigator.canPop(context)) {
-      Navigator.pop(context);
-    }
+  @override
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen>
+    with WidgetsBindingObserver {
+  bool _isBottomSheet = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authNotifierProvider);
-    final isBottomSheet = Navigator.canPop(context);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _isBottomSheet = Navigator.canPop(context);
+  }
 
-    // authSessionProvider: 딥링크 콜백 후 signedIn 이벤트를 감지 (PKCE 플로우)
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // 앱이 포어그라운드로 복귀할 때 — 브라우저 취소 시 로딩 상태 초기화
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.read(authNotifierProvider.notifier).resetIfNotSignedIn();
+    }
+  }
+
+  void _close() {
+    if (Navigator.canPop(context)) Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authState = ref.watch(authNotifierProvider);
+
+    // 딥링크 콜백 후 signedIn 이벤트 감지 (PKCE 플로우)
     ref.listen<AsyncValue<AuthState>>(authSessionProvider, (_, next) {
-      next.whenData((authState) {
-        if (authState.event == AuthChangeEvent.signedIn) {
-          if (onLoginSuccess != null) {
-            onLoginSuccess!();
-            _close(context);
-          } else if (isBottomSheet) {
-            _close(context);
+      next.whenData((state) {
+        if (state.event == AuthChangeEvent.signedIn) {
+          if (widget.onLoginSuccess != null) {
+            widget.onLoginSuccess!();
+            _close();
+          } else if (_isBottomSheet) {
+            _close();
           }
-          // 전체화면 로그인의 경우 app_router의 redirect가 /home으로 처리
+          // 전체화면 /login → app_router redirect가 /home으로 처리
         }
       });
     });
 
     return Scaffold(
-      // 바텀시트로 열릴 때는 Scaffold 배경 투명 처리
-      backgroundColor: isBottomSheet ? Colors.transparent : null,
+      backgroundColor: _isBottomSheet ? Colors.transparent : null,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -67,7 +97,7 @@ class LoginScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                isBottomSheet ? '리뷰 작성은 로그인이 필요해요' : '내 주변 셀프세차장을 한눈에',
+                _isBottomSheet ? '리뷰 작성은 로그인이 필요해요' : '내 주변 셀프세차장을 한눈에',
                 style: const TextStyle(color: AppTheme.textSecondary),
               ),
 
@@ -75,35 +105,34 @@ class LoginScreen extends ConsumerWidget {
 
               // ── 오류 메시지 ───────────────────────────────
               if (authState is AsyncError)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 16),
                   child: Text(
                     '로그인 중 오류가 발생했습니다.',
-                    style: const TextStyle(color: AppTheme.error),
+                    style: TextStyle(color: AppTheme.error),
                   ),
                 ),
 
               // ── 카카오 로그인 ─────────────────────────────
               _KakaoLoginButton(
-                onPressed: authState is AsyncLoading
-                    ? null
-                    : () => ref
-                        .read(authNotifierProvider.notifier)
-                        .signInWithKakao(),
+                isLoading: authState is AsyncLoading,
+                onPressed: () => ref
+                    .read(authNotifierProvider.notifier)
+                    .signInWithKakao(),
               ),
               const SizedBox(height: 16),
 
               // ── 취소 / 비로그인 계속하기 ──────────────────
               TextButton(
                 onPressed: () {
-                  if (isBottomSheet) {
-                    _close(context);
+                  if (_isBottomSheet) {
+                    _close();
                   } else {
                     context.go(AppRoutes.home);
                   }
                 },
                 child: Text(
-                  isBottomSheet ? '취소' : '로그인 없이 둘러보기',
+                  _isBottomSheet ? '취소' : '로그인 없이 둘러보기',
                   style: const TextStyle(color: AppTheme.textSecondary),
                 ),
               ),
@@ -142,9 +171,13 @@ Future<void> showLoginBottomSheet(
 }
 
 class _KakaoLoginButton extends StatelessWidget {
-  const _KakaoLoginButton({required this.onPressed});
+  const _KakaoLoginButton({
+    required this.isLoading,
+    required this.onPressed,
+  });
 
-  final VoidCallback? onPressed;
+  final bool isLoading;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +185,7 @@ class _KakaoLoginButton extends StatelessWidget {
       width: double.infinity,
       height: 52,
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFFEE500),
           foregroundColor: const Color(0xFF191919),
@@ -162,7 +195,16 @@ class _KakaoLoginButton extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        child: const Text('카카오 로그인'),
+        child: isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Color(0xFF191919),
+                ),
+              )
+            : const Text('카카오 로그인'),
       ),
     );
   }

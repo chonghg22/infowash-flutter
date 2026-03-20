@@ -87,14 +87,24 @@ class AuthNotifier extends Notifier<AsyncValue<User?>> {
   Future<void> signInWithKakao() async {
     state = const AsyncValue.loading();
     try {
+      // authScreenLaunchMode 미지정 → 플랫폼 기본값(Android: Custom Tabs)
+      // Custom Tabs는 커스텀 스킴 딥링크 리다이렉트를 더 안정적으로 처리함
       await Supabase.instance.client.auth.signInWithOAuth(
         OAuthProvider.kakao,
         redirectTo: 'io.supabase.infowash://login-callback',
-        authScreenLaunchMode: LaunchMode.externalApplication,
       );
-      state = AsyncValue.data(Supabase.instance.client.auth.currentUser);
+      // 브라우저가 열리고 즉시 반환됨 — 실제 로그인 완료는 authSessionProvider가 감지
+      // 상태를 즉시 리셋하지 않고 loading 유지 (LoginScreen이 resume 시 리셋)
     } catch (e, st) {
       state = AsyncValue.error(e, st);
+    }
+  }
+
+  /// 브라우저에서 복귀했지만 로그인하지 않은 경우 상태 초기화
+  void resetIfNotSignedIn() {
+    if (state is AsyncLoading) {
+      final user = Supabase.instance.client.auth.currentUser;
+      state = AsyncValue.data(user);
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/car_wash.dart';
@@ -33,6 +34,32 @@ class CarWashRepository {
     return data
         .map((e) => CarWash.fromJson(e as Map<String, dynamic>))
         .toList();
+  }
+
+  /// 전체 세차장 조회 + 클라이언트 거리 계산 및 정렬
+  Future<List<CarWash>> getAllCarWashes({
+    required double lat,
+    required double lng,
+  }) async {
+    final data = await _client
+        .schema(_schema)
+        .from(_table)
+        .select()
+        .eq('status', 'ACTIVE')
+        .order('created_at', ascending: false);
+
+    final list = (data as List<dynamic>)
+        .map((e) => CarWash.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    final withDistance = list.map((cw) {
+      final distM = Geolocator.distanceBetween(lat, lng, cw.lat, cw.lng);
+      return cw.copyWith(distanceM: distM);
+    }).toList()
+      ..sort((a, b) => (a.distanceM ?? double.infinity)
+          .compareTo(b.distanceM ?? double.infinity));
+
+    return withDistance;
   }
 
   /// 전체 목록 (페이지네이션 + 검색)

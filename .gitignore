@@ -49,3 +49,8 @@ app.*.map.json
 
 # Supabase CLI temp files
 supabase/.temp/
+
+# Scripts - 환경변수 및 수집 데이터 (키/개인정보 포함 가능)
+scripts/.env
+scripts/car_wash_kakao.json
+.env

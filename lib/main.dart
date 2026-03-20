@@ -30,12 +30,19 @@ void main() async {
   // 앱이 종료된 상태에서 딥링크로 실행된 경우
   final initialUri = await appLinks.getInitialLink();
   if (initialUri != null) {
-    await Supabase.instance.client.auth.getSessionFromUrl(initialUri);
+    debugPrint('🔗 초기 딥링크: $initialUri');
+    // 이미 세션이 있으면 중복 처리 방지
+    if (Supabase.instance.client.auth.currentUser == null) {
+      await Supabase.instance.client.auth.getSessionFromUrl(initialUri);
+    }
   }
 
   // 앱 실행 중 딥링크 수신 (백그라운드 → 포그라운드 복귀)
-  appLinks.uriLinkStream.listen((uri) {
-    Supabase.instance.client.auth.getSessionFromUrl(uri);
+  appLinks.uriLinkStream.listen((uri) async {
+    debugPrint('🔗 딥링크 수신: $uri');
+    if (Supabase.instance.client.auth.currentUser == null) {
+      await Supabase.instance.client.auth.getSessionFromUrl(uri);
+    }
   });
 
   // ── 네이버 지도 SDK 초기화 ─────────────────────────────────────

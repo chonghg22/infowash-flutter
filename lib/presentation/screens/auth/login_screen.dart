@@ -55,10 +55,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
 
-    // 딥링크 콜백 후 signedIn 이벤트 감지 (PKCE 플로우)
+    // 딥링크 콜백 후 signedIn / initialSession 이벤트 감지 (PKCE 플로우)
     ref.listen<AsyncValue<AuthState>>(authSessionProvider, (_, next) {
-      next.whenData((state) {
-        if (state.event == AuthChangeEvent.signedIn) {
+      next.whenData((authState) {
+        debugPrint('🔑 LoginScreen auth event: ${authState.event}');
+        if (authState.event == AuthChangeEvent.signedIn ||
+            authState.event == AuthChangeEvent.initialSession) {
           if (widget.onLoginSuccess != null) {
             widget.onLoginSuccess!();
             _close();

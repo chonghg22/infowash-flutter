@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../presentation/screens/auth/login_screen.dart';
-import '../../providers/auth_provider.dart';
 import '../../presentation/screens/detail/detail_screen.dart';
 import '../../presentation/screens/favorite/favorite_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
@@ -37,8 +36,13 @@ class AppRoutes {
 class _AuthChangeNotifier extends ChangeNotifier {
   _AuthChangeNotifier() {
     _sub = Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      debugPrint('🔐 Auth event: ${data.event}');
+      debugPrint('🔐 Session: ${data.session != null ? "exists" : "null"}');
+      debugPrint('🔐 User: ${data.session?.user?.id}');
+
       if (data.event == AuthChangeEvent.signedIn ||
           data.event == AuthChangeEvent.signedOut ||
+          data.event == AuthChangeEvent.initialSession ||
           data.event == AuthChangeEvent.userUpdated) {
         notifyListeners();
       }
@@ -64,14 +68,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     debugLogDiagnostics: true,
     refreshListenable: authNotifier,
 
-    // 로그인 완료 후 /login에 머물지 않도록 리다이렉트
     redirect: (context, state) {
-      final isSignedIn =
-          Supabase.instance.client.auth.currentUser != null;
-      final isOnLogin =
-          state.matchedLocation == AppRoutes.login;
+      // Riverpod StreamProvider 대신 currentUser 직접 체크 (동기, 즉시 반영)
+      final user = Supabase.instance.client.auth.currentUser;
+      final isLoggedIn = user != null;
+      final path = state.matchedLocation;
 
-      if (isSignedIn && isOnLogin) return AppRoutes.home;
+      debugPrint('🧭 Router redirect - loggedIn: $isLoggedIn, path: $path');
+
+      // /review/* 는 로그인 필요
+      if (path.startsWith('/review') && !isLoggedIn) return AppRoutes.login;
+      // 로그인 상태에서 /login 페이지 → 홈으로
+      if (path == AppRoutes.login && isLoggedIn) return AppRoutes.home;
       return null;
     },
 
@@ -98,16 +106,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
 
       // Review (full-screen, no bottom nav) — 로그인 필요
+      // redirect는 상단 전역 redirect에서 처리
       GoRoute(
         path: AppRoutes.review,
-        redirect: (context, state) {
-          final container =
-              ProviderScope.containerOf(context, listen: false);
-          if (!container.read(isSignedInProvider)) {
-            return AppRoutes.login;
-          }
-          return null;
-        },
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return ReviewScreen(carWashId: id);

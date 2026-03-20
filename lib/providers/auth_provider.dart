@@ -46,7 +46,10 @@ final userNicknameProvider = FutureProvider<String?>((ref) async {
 final profileInitProvider = Provider<void>((ref) {
   ref.listen<AsyncValue<AuthState>>(authSessionProvider, (_, next) {
     next.whenData((authState) {
-      if (authState.event == AuthChangeEvent.signedIn) {
+      debugPrint('👤 profileInitProvider event: ${authState.event}');
+      // signedIn + initialSession 모두 처리 (PKCE 콜백 시 initialSession 발생 가능)
+      if (authState.event == AuthChangeEvent.signedIn ||
+          authState.event == AuthChangeEvent.initialSession) {
         final user = authState.session?.user;
         if (user != null) _ensureUserProfile(user.id);
       }

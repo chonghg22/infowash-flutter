@@ -38,9 +38,20 @@ class LocationNotifier extends AsyncNotifier<Position?> {
       );
     }
 
-    // 현재 위치 가져오기
+    // 마지막으로 알려진 위치가 있으면 즉시 반환 후 백그라운드에서 고정밀 업데이트
+    final lastKnown = await Geolocator.getLastKnownPosition();
+    if (lastKnown != null) {
+      Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      ).then((position) {
+        state = AsyncData(position);
+      }).catchError((_) {});
+      return lastKnown;
+    }
+
+    // 처음 실행: 저정밀로 빠르게 가져오기
     return Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
+      desiredAccuracy: LocationAccuracy.low,
       timeLimit: const Duration(seconds: 10),
     );
   }

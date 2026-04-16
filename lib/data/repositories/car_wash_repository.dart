@@ -162,10 +162,14 @@ class CarWashRepository {
     String? userId, // 비로그인 시 null
     required String content,
   }) async {
-    await _client.schema(_schema).from('correction_report').insert({
+    await _client.schema(_schema).from('report').insert({
       'car_wash_id': carWashId,
       'user_id': userId,
-      'content': content,
+      'type': 'UPDATE',
+      'data': {
+        'content': content,
+        'report_type': 'correction',
+      },
       'status': 'PENDING',
     });
   }

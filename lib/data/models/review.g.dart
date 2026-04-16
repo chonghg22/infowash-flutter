@@ -15,7 +15,9 @@ _$ReviewImpl _$$ReviewImplFromJson(Map<String, dynamic> json) => _$ReviewImpl(
   scorePrice: (json['score_price'] as num?)?.toInt() ?? 0,
   content: json['content'] as String? ?? '',
   imageUrls:
-      (json['images'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      (json['images'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList() ??
       const [],
   userNickname: json['nickname'] as String?,
   createdAt: json['created_at'] == null

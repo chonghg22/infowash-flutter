@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/constants/app_constants.dart';
@@ -62,6 +63,15 @@ void main() async {
       await Supabase.instance.client.auth.getSessionFromUrl(uri);
     }
   });
+
+  // ── GPS 워밍업 (위치 권한 있을 때 미리 요청) ──────────────────
+  try {
+    final permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse) {
+      Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.low);
+    }
+  } catch (_) {}
 
   // ── 네이버 지도 SDK 초기화 ─────────────────────────────────────
   await FlutterNaverMap().init(

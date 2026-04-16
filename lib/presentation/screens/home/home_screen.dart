@@ -162,9 +162,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
     });
 
-    // 검색 결과로 마커 갱신
+    // 검색 결과로 마커 갱신 + 에러 스낵바
     ref.listen(mapNearbyCarWashesProvider, (prev, next) {
       next.whenData(_updateMarkers);
+      if (next.hasError && !(prev?.hasError ?? false)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('주변 세차장을 불러오지 못했어요'),
+            action: SnackBarAction(
+              label: '재시도',
+              onPressed: () => ref.invalidate(mapNearbyCarWashesProvider),
+            ),
+          ),
+        );
+      }
     });
 
     final nearbyAsync = ref.watch(mapNearbyCarWashesProvider);
@@ -252,44 +263,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
 
-          // ── 검색 중 인디케이터 ──────────────────────────────────────────────
+          // ── 검색 중 LinearProgressIndicator ────────────────────────────────
           if (isSearching)
-            SafeArea(
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 70),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 7),
-                    decoration: BoxDecoration(
-                      color: Colors.black87,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 12,
-                          height: 12,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 1.5,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          '검색 중...',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+            const Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: LinearProgressIndicator(
+                minHeight: 3,
+                backgroundColor: Colors.transparent,
+                color: AppTheme.primary,
               ),
             ),
 

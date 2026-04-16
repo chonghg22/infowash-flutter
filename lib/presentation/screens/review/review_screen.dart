@@ -50,12 +50,25 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
     }
 
     final picker = ImagePicker();
-    final remaining = 3 - _selectedImages.length;
-    if (remaining <= 0) return;
+    if (_selectedImages.length >= 2) return;
 
-    final picked = await picker.pickMultiImage(limit: remaining);
+    final picked = await picker.pickMultiImage(limit: 2);
     if (picked.isNotEmpty) {
-      setState(() => _selectedImages.addAll(picked));
+      final combined = [..._selectedImages, ...picked];
+      if (combined.length > 2) {
+        setState(() {
+          _selectedImages
+            ..clear()
+            ..addAll(combined.take(2));
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('이미지는 최대 2장까지 첨부 가능해요')),
+          );
+        }
+      } else {
+        setState(() => _selectedImages.addAll(picked));
+      }
     }
   }
 
@@ -181,7 +194,7 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
             Text('사진 첨부', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 4),
             Text(
-              '최대 3장',
+              '최대 2장',
               style: const TextStyle(
                   fontSize: 12, color: AppTheme.textSecondary),
             ),
@@ -197,8 +210,8 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                         onRemove: () =>
                             setState(() => _selectedImages.remove(img)),
                       )),
-                  // 추가 버튼 (최대 3장)
-                  if (_selectedImages.length < 3)
+                  // 추가 버튼 (최대 2장)
+                  if (_selectedImages.length < 2)
                     GestureDetector(
                       onTap: _pickImages,
                       child: Container(

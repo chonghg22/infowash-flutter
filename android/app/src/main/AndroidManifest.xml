@@ -16,7 +16,7 @@
     <application
         android:label="인포워시"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="false">
 
         <activity

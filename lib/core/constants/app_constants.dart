@@ -6,15 +6,11 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // ── Supabase ──────────────────────────────────────────────────
-  static const String supabaseUrl =
-      'REDACTED_SUPABASE_URL';
-  static const String supabaseAnonKey =
-      'REDACTED_JWT_HEADER'
-      'REDACTED_JWT_PAYLOAD'
-      'REDACTED_JWT_SIGNATURE';
+  static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  static const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
   // ── Naver Map ─────────────────────────────────────────────────
-  static const String naverMapClientId = 'REDACTED_NAVER_CLIENT_ID';
+  static const String naverMapClientId = String.fromEnvironment('NAVER_MAP_CLIENT_ID');
 
   // ── Google AdMob ──────────────────────────────────────────────
   static const String admobAppId =

@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -26,7 +29,13 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         // 네이버 지도 Client ID (AndroidManifest ${naverMapClientId} 치환)
-        manifestPlaceholders["naverMapClientId"] = "REDACTED_NAVER_CLIENT_ID"
+        val localPropsFile = rootProject.file("local.properties")
+        val localProps = Properties()
+        if (localPropsFile.exists()) {
+            localProps.load(FileInputStream(localPropsFile))
+        }
+        manifestPlaceholders["naverMapClientId"] =
+            localProps.getProperty("naver.map.client.id", "")
     }
 
     buildTypes {

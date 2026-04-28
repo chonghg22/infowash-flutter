@@ -54,3 +54,4 @@ supabase/.temp/
 scripts/.env
 scripts/car_wash_kakao.json
 .env
+node_modules/
